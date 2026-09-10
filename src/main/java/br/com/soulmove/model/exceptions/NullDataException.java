@@ -1,6 +1,6 @@
 package br.com.soulmove.model.exceptions;
 
-public class NullDataException extends RuntimeException {
+public class NullDataException extends Exception {
     private String columnName;
     public NullDataException(String message, String columnName, Throwable e) {
         super(message, e);

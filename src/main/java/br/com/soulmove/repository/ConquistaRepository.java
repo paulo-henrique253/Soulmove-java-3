@@ -2,10 +2,15 @@ package br.com.soulmove.repository;
 
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.UsuarioSoulMove;
+import br.com.soulmove.model.exceptions.ConstraintViolationException;
+import br.com.soulmove.model.exceptions.DatabaseException;
+import br.com.soulmove.model.exceptions.NullDataException;
+import br.com.soulmove.model.exceptions.TooLargeException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -30,9 +35,20 @@ public class ConquistaRepository {
             }
 
             return null;
-        }catch (Exception e){
-            e.printStackTrace();
-            throw e;
+        }catch (SQLException e){
+            switch (e.getErrorCode()) {
+                case 1: //Não vai acontecer
+                    throw new ConstraintViolationException("Restrição violada.", OracleErrorParser.extrairNomeConstraint(e.getMessage()), e);
+
+                case 1400:
+                    throw new NullDataException("Valor nulo inserido em campo obrigatório.", OracleErrorParser.extrairNomeColuna(e.getMessage()), e);
+
+                case 12899:
+                    throw new TooLargeException("Valor excedeu o limite de caracteres.", OracleErrorParser.extrairNomeConstraint(e.getMessage()), e);
+                default:
+                    throw new DatabaseException("Erro inesperado no banco de dados.", e);
+
+            }
         }
     }
 

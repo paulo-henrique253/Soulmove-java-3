@@ -1,6 +1,6 @@
 package br.com.soulmove.model.exceptions;
 
-public class TooLargeException extends RuntimeException {
+public class TooLargeException extends Exception {
     private String columnName;
 
     public TooLargeException(String message, String columnName, Throwable e) {

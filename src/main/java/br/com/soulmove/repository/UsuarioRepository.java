@@ -34,8 +34,7 @@ public class UsuarioRepository {
             ResultSet rs = pstmt.getGeneratedKeys();
             if (rs.next()){
                 long id = rs.getBigDecimal(1).longValue();
-                int pontos = rs.getInt("pontos");
-                return new UsuarioSoulMove(id, nome, pontos, email, data);
+                return new UsuarioSoulMove(id, nome, 0, email, data);
             }
 
             return null;
@@ -90,7 +89,7 @@ public class UsuarioRepository {
         }
     }
 
-    public UsuarioSoulMove executarBusca(PreparedStatement pstmt) throws SQLException{
+    public UsuarioSoulMove executarBusca(PreparedStatement pstmt) throws SQLException, UnableToFindEntityException{
         ResultSet rs = pstmt.executeQuery();
         if (rs.next()){
             long id = rs.getBigDecimal("usuario_id").longValue();
