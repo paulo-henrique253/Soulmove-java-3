@@ -1,6 +1,7 @@
 package br.com.soulmove.repository;
 
 import br.com.soulmove.model.Conquista;
+import br.com.soulmove.model.UsuarioSoulMove;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -62,6 +63,24 @@ public class ConquistaRepository {
         }
     }
 
+    public int excluir(Conquista conquista)throws Exception {
+        String sql = "DELETE * FROM tb_conquista WHERE id = ?";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            int registros = 0;
+
+            pstmt.setLong(1, conquista.getId());
+            registros = pstmt.executeUpdate();
+
+
+            return registros;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
 
 }
