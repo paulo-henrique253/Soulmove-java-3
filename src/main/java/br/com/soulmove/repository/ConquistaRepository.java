@@ -5,6 +5,9 @@ import br.com.soulmove.model.Conquista;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ConquistaRepository {
 
@@ -31,5 +34,34 @@ public class ConquistaRepository {
             throw e;
         }
     }
+
+    public List<Conquista> buscarTodas() throws Exception{
+        String sql = "SELECT * FROM tb_conquista";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+            List<Conquista> conquistas = new ArrayList<>();
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()){
+                long id = rs.getBigDecimal("conquista_id").longValue();
+                int pontos = rs.getInt("pontos");
+                String nome = rs.getString("nome");
+                String titulo = rs.getString("titulo");
+                String descricao = rs.getString("descricao");
+
+                Conquista conquista = new Conquista(id, nome, descricao, pontos, titulo);
+                conquistas.add(conquista);
+            }
+
+
+            return conquistas;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
 
 }

@@ -5,18 +5,15 @@ import java.time.LocalDate;
 public class Usuario {
     private long id;
     private String nome;
-    private int pontos;
     private String email;
     private LocalDate dataCadastro;
-    private Conquista tituloAtual;
 
 
     public Usuario (){}
 
-    public Usuario(long id, String nome, int pontos, String email, LocalDate dataCadastro) {
+    public Usuario(long id, String nome, String email, LocalDate dataCadastro) {
         this.id = id;
         this.nome = nome;
-        this.pontos = pontos;
         this.email = email;
         this.dataCadastro = dataCadastro;
     }
@@ -35,14 +32,6 @@ public class Usuario {
 
     public void setNome(String nome) {
         this.nome = nome;
-    }
-
-    public int getPontos() {
-        return pontos;
-    }
-
-    public void setPontos(int pontos) {
-        this.pontos = pontos;
     }
 
     public String getEmail() {

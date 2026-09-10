@@ -2,6 +2,7 @@ package br.com.soulmove.repository;
 
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.Usuario;
+import br.com.soulmove.model.UsuarioSoulMove;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 public class UsuarioRepository {
 
 
-    public Usuario cadastrar(String nome, String email, String senha)throws Exception{
+    public UsuarioSoulMove cadastrar(String nome, String email, String senha)throws Exception{
         String sql = "INSERT INTO TB_USUARIO(nome, pontos, email, data_cadastro, senha) VALUES(?, ?, ?, ?, ?)";
 
         try (Connection con = new ConnectionFactory().getConnection();
@@ -32,7 +33,7 @@ public class UsuarioRepository {
             if (rs.next()){
                 long id = rs.getBigDecimal(1).longValue();
                 int pontos = rs.getInt("pontos");
-                return new Usuario(id, nome, pontos, email, data);
+                return new UsuarioSoulMove(id, nome, pontos, email, data);
             }
 
             return null;
@@ -42,7 +43,7 @@ public class UsuarioRepository {
         }
     }
 
-    public Usuario buscar(long id) throws Exception{
+    public UsuarioSoulMove buscar(long id) throws Exception{
         String sql = "SELECT * FROM tb_usuario WHERE id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
@@ -56,7 +57,7 @@ public class UsuarioRepository {
         }
     }
 
-    public Usuario buscar(String email) throws Exception{
+    public UsuarioSoulMove buscar(String email) throws Exception{
         String sql = "SELECT * FROM tb_usuario WHERE email = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
@@ -70,7 +71,7 @@ public class UsuarioRepository {
         }
     }
 
-    public Usuario executarBusca(PreparedStatement pstmt) throws Exception{
+    public UsuarioSoulMove executarBusca(PreparedStatement pstmt) throws Exception{
         ResultSet rs = pstmt.executeQuery();
         if (rs.next()){
             long id = rs.getBigDecimal("usuario_id").longValue();
@@ -81,13 +82,46 @@ public class UsuarioRepository {
             int pontos =rs.getInt("pontos");
 
 
-            return new Usuario(id, nome, pontos, email , data);
+            return new UsuarioSoulMove(id, nome, pontos, email , data);
         }
         return  null;
     }
 
-    public int alterarConquista(Usuario usuario, Conquista conquista){
+    public int alterarConquista(UsuarioSoulMove usuario, Conquista conquista)throws Exception{
         String sql = "UPDATE tb_usuario SET titulo_atual = ? WHERE usuario_id = ?";
-        return 0;
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+            int registros = 0;
+
+            pstmt.setLong(1, conquista.getId());
+            pstmt.setLong(2, usuario.getId());
+
+            registros = pstmt.executeUpdate();
+
+            return registros;
+        } catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+
+    }
+
+    public int excluir(UsuarioSoulMove usuario)throws Exception{
+        String sql = "DELETE * FROM tb_usuario WHERE id = ?";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+
+            int registros = 0;
+
+            pstmt.setLong(1, usuario.getId());
+            registros = pstmt.executeUpdate();
+
+
+            return registros;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

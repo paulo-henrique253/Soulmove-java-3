@@ -57,4 +57,9 @@ public class Conquista {
     public void setPontos(int pontos) {
         this.pontos = pontos;
     }
+
+    @Override
+    public String toString() {
+        return this.nome + "\t| " + this.pontos + "\t| " + this.titulo + "\t| " + this.descricao;
+    }
 }
