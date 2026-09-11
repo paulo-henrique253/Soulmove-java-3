@@ -10,4 +10,6 @@ public class Viagem {
     private String origem;
     private String destino;
     private TipoVeiculo tipoVeiculo;
+
+
 }

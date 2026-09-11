@@ -44,7 +44,8 @@ public class UsuarioRepository {
         }
     }
 
-    public UsuarioSoulMove buscar(long id) throws DatabaseException, UnableToFindEntityException{
+    public UsuarioSoulMove buscar(long id) 
+    throws DatabaseException, ConstraintViolationException, TooLargeException, NullDataException, UnableToFindEntityException{
         String sql = "SELECT * FROM tb_usuario WHERE id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
@@ -55,7 +56,8 @@ public class UsuarioRepository {
 
         } catch (SQLException e){
 
-            throw new DatabaseException("Ocorreu um erro inesperado no banco de dados.",e);
+           OracleExceptionTranslator.translateException(e, "Erro ao buscar usuario: ");
+           return null;
         } catch (UnableToFindEntityException e){
             throw e;
         }

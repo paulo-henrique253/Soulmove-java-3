@@ -9,6 +9,7 @@ import br.com.soulmove.repository.UsuarioRepository;
 import java.util.List;
 
 public class Teste {
+    // LEMBRAR DE PREENCHER OS ENUMS
     public static void main(String[] args) {
         ConquistaRepository cr = new ConquistaRepository();
         UsuarioRepository ur = new UsuarioRepository();
