@@ -39,20 +39,8 @@ public class UsuarioRepository {
 
             return null;
         } catch (SQLException e) {
-
-            switch (e.getErrorCode()) {
-                case 1:
-                    throw new ConstraintViolationException("Restrição de chave única violada.", OracleErrorParser.extrairNomeConstraint(e.getMessage()), e);
-
-                case 1400:
-                    throw new NullDataException("Valor nulo inserido em campo obrigatório.", OracleErrorParser.extrairNomeColuna(e.getMessage()), e);
-
-                case 12899:
-                    throw new TooLargeException("Valor excedeu o limite de caracteres", OracleErrorParser.extrairNomeConstraint(e.getMessage()), e);
-                default:
-                    throw new DatabaseException("Erro inesperado no banco de dados.", e);
-
-            }
+            OracleExceptionTranslator.translateException(e, "Erro ao cadastrar usuário");
+            return null;
         }
     }
 
@@ -107,7 +95,8 @@ public class UsuarioRepository {
         }
     }
 
-    public int alterarConquista(UsuarioSoulMove usuario, Conquista conquista)throws DatabaseException, ConstraintViolationException, UnableToFindEntityException{
+    public int alterarConquista(UsuarioSoulMove usuario, Conquista conquista)
+            throws DatabaseException, ConstraintViolationException, TooLargeException, NullDataException, UnableToFindEntityException{
         String sql = "UPDATE tb_usuario SET titulo_atual = ? WHERE usuario_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
@@ -123,19 +112,14 @@ public class UsuarioRepository {
 
             return registros;
         } catch (SQLException e){
-            switch (e.getErrorCode()) {
-                case 1:
-                    throw new ConstraintViolationException("Restrição violada.", OracleErrorParser.extrairNomeConstraint(e.getMessage()), e);
-
-                default:
-                    throw new DatabaseException("Erro inesperado no banco de dados.", e);
-
-            }
+            OracleExceptionTranslator.translateException(e, "Erro ao alterar conquista");
+            return -1;
         }
 
     }
 
-    public int excluir(UsuarioSoulMove usuario)throws DatabaseException, UnableToFindEntityException{
+    public int excluir(UsuarioSoulMove usuario)
+            throws DatabaseException, UnableToFindEntityException, TooLargeException, NullDataException, ConstraintViolationException{
         String sql = "DELETE * FROM tb_usuario WHERE id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
@@ -150,7 +134,8 @@ public class UsuarioRepository {
             return registros;
 
         }catch (SQLException e){
-            throw new DatabaseException("Ocorreu um erro inesperado no banco de dados.",e);
+            OracleExceptionTranslator.translateException(e, "Erro ao excluir usuario");
+            return -1;
         }
     }
 }
