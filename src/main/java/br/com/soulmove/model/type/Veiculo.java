@@ -1,22 +1,33 @@
 package br.com.soulmove.model.type;
 
-public enum TipoVeiculo {
-    CARRO("carro");
+public enum Veiculo {
+    CARRO("carro", 0),
+    BICICLETA("bicicleta", 0),
+    TREM("trem", 0),
+    MOTO("moto", 0),
+    ONIBUS("onibus", 0),
+    METRO("metro", 0);
 
 
 
     private final String veiculo;
+    private final double emissao;
 
-    TipoVeiculo(String veiculo){
+    Veiculo(String veiculo, double emissao){
         this.veiculo = veiculo;
+        this.emissao = emissao;
     }
 
     public String getVeiculo() {
         return veiculo;
     }
 
-    public static TipoVeiculo getTipoVeiculo(String s){
-        for (TipoVeiculo v : values()){
+    public double getEmissao(){
+        return emissao;
+    }
+
+    public static Veiculo getTipoVeiculo(String s){
+        for (Veiculo v : values()){
             if (v.getVeiculo().equalsIgnoreCase(s)){
                 return v;
             }

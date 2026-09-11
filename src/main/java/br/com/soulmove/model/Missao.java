@@ -1,7 +1,6 @@
 package br.com.soulmove.model;
 
 import br.com.soulmove.model.type.TipoMissao;
-import br.com.soulmove.model.type.TipoVeiculo;
 
 public class Missao {
     private long id;

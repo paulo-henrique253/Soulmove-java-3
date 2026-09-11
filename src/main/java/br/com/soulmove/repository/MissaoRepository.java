@@ -2,6 +2,7 @@ package br.com.soulmove.repository;
 
 
 import br.com.soulmove.model.Missao;
+import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.type.TipoMissao;
 
 import java.sql.Connection;
@@ -61,6 +62,11 @@ public class MissaoRepository {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    public List<Missao> buscarConcluidas(UsuarioSoulMove usuario){
+        String sql = "SELECT * FROM tb_missao WHERE missao_id IN (SELECT missao_id FROM tb_usuario_missao WHERE usuario_id = ? and status_missao = 'concluida')";
+
     }
 
 

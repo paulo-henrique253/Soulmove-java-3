@@ -1,12 +1,9 @@
 package br.com.soulmove.app;
 
-import br.com.soulmove.model.Conquista;
-import br.com.soulmove.model.Usuario;
 import br.com.soulmove.model.exceptions.ConstraintViolationException;
+import br.com.soulmove.model.type.Veiculo;
 import br.com.soulmove.repository.ConquistaRepository;
 import br.com.soulmove.repository.UsuarioRepository;
-
-import java.util.List;
 
 public class Teste {
     public static void main(String[] args) {
@@ -21,6 +18,8 @@ public class Teste {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        System.out.println(Veiculo.getTipoVeiculo("carro"));
 
 
     }

@@ -20,7 +20,7 @@ public class ConquistaRepository {
     public Conquista cadastrar(int pontos, String nome, String titulo, String descricao) throws Exception{
         String sql = "INSERT INTO tb_conquista (pontos, nome, titulo, descricao) VALUES (?, ?, ?, ?)";
         try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
+             PreparedStatement pstmt = con.prepareStatement(sql, new String[] {"CONQUISTA_ID"})){
 
             pstmt.setInt(1, pontos);
             pstmt.setString(2, nome);
