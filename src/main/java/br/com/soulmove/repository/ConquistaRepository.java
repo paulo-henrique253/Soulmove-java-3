@@ -2,10 +2,7 @@ package br.com.soulmove.repository;
 
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.UsuarioSoulMove;
-import br.com.soulmove.model.exceptions.ConstraintViolationException;
-import br.com.soulmove.model.exceptions.DatabaseException;
-import br.com.soulmove.model.exceptions.NullDataException;
-import br.com.soulmove.model.exceptions.TooLargeException;
+import br.com.soulmove.model.exceptions.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +14,8 @@ import java.util.concurrent.ExecutionException;
 
 public class ConquistaRepository {
 
-    public Conquista cadastrar(int pontos, String nome, String titulo, String descricao) throws Exception{
+    public Conquista cadastrar(int pontos, String nome, String titulo, String descricao)
+            throws DatabaseException, ConstraintViolationException, TooLargeException, NullDataException{
         String sql = "INSERT INTO tb_conquista (pontos, nome, titulo, descricao) VALUES (?, ?, ?, ?)";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql, new String[] {"CONQUISTA_ID"})){
@@ -36,23 +34,13 @@ public class ConquistaRepository {
 
             return null;
         }catch (SQLException e){
-            switch (e.getErrorCode()) {
-                case 1: //Não vai acontecer
-                    throw new ConstraintViolationException("Restrição violada.", OracleErrorParser.extrairNomeConstraint(e.getMessage()), e);
-
-                case 1400:
-                    throw new NullDataException("Valor nulo inserido em campo obrigatório.", OracleErrorParser.extrairNomeColuna(e.getMessage()), e);
-
-                case 12899:
-                    throw new TooLargeException("Valor excedeu o limite de caracteres.", OracleErrorParser.extrairNomeConstraint(e.getMessage()), e);
-                default:
-                    throw new DatabaseException("Erro inesperado no banco de dados.", e);
-
-            }
+            OracleExceptionTranslator.translateException(e, "Erro ao cadastrar missão");
+            return null;
         }
     }
 
-    public List<Conquista> buscarTodas() throws Exception{
+    public List<Conquista> buscarTodas()
+            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException {
         String sql = "SELECT * FROM tb_conquista";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
@@ -73,13 +61,14 @@ public class ConquistaRepository {
 
             return conquistas;
 
-        }catch (Exception e){
-            e.printStackTrace();
-            throw e;
+        }catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao buscar conquistas");
+            return null;
         }
     }
 
-    public int excluir(Conquista conquista)throws Exception {
+    public int excluir(Conquista conquista)
+            throws DatabaseException, ConstraintViolationException,TooLargeException, NullDataException ,UnableToFindEntityException {
         String sql = "DELETE * FROM tb_conquista WHERE id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -89,12 +78,14 @@ public class ConquistaRepository {
             pstmt.setLong(1, conquista.getId());
             registros = pstmt.executeUpdate();
 
+            if (registros == 0 )
+                throw new UnableToFindEntityException("Entidade não encontrada");
 
             return registros;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+        } catch (SQLException e) {
+            OracleExceptionTranslator.translateException(e, "Erro ao excluir conquista");
+            return -1;
         }
     }
 

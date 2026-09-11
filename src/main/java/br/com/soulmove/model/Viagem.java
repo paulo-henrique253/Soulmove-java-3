@@ -2,7 +2,6 @@ package br.com.soulmove.model;
 
 import br.com.soulmove.model.type.Veiculo;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Viagem {
