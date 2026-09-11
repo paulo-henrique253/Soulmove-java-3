@@ -1,5 +1,7 @@
 package br.com.soulmove.repository;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,4 +55,12 @@ public final class OracleErrorParser {
 
         return "UNKNOWN_CONSTRAINT";
     }
+
+    public static double adjustPrecision(double valorOriginal, int escalaMaxima){
+
+        return BigDecimal.valueOf(valorOriginal)
+                         .setScale(escalaMaxima, RoundingMode.HALF_UP)
+                         .doubleValue();
+    }
+
 }

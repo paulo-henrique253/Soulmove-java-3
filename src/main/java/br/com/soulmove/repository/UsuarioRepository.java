@@ -47,7 +47,7 @@ public class UsuarioRepository {
 
     public UsuarioSoulMove buscar(long id) 
     throws DatabaseException, ConstraintViolationException, TooLargeException, NullDataException, UnableToFindEntityException{
-        String sql = "SELECT * FROM tb_usuario WHERE id = ?";
+        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_id FROM tb_usuario WHERE id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
 

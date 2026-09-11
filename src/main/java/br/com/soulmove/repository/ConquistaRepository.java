@@ -3,6 +3,7 @@ package br.com.soulmove.repository;
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.exceptions.*;
+import br.com.soulmove.model.type.TipoMissao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -112,6 +113,32 @@ public class ConquistaRepository {
         } catch (SQLException e) {
             OracleExceptionTranslator.translateException(e, "Erro ao excluir conquista");
             return -1;
+        }
+    }
+
+    public List<Conquista> buscarConcluidas(UsuarioSoulMove usuario)
+            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException{
+        String sql = "SELECT conquista_id, pontos, titulo, nome, descricao FROM tb_conquista WHERE conquista_id IN (SELECT conquista_id FROM tb_usuario_conquista WHERE usuario_id = ?)";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+            pstmt.setLong(1, usuario.getId());
+            ResultSet rs = pstmt.executeQuery();
+
+            List<Conquista> conquistas = new ArrayList<>();
+            while (rs.next()) {
+                long id = rs.getBigDecimal("conquista_id").longValue();
+                int pontos = rs.getInt("pontos");
+                String titulo = rs.getString("titulo");
+                String nome = rs.getString("nome");
+                String descricao = rs.getString("descricao");
+
+                Conquista missao = new Conquista(id, nome,descricao, pontos, titulo);
+                conquistas.add(missao);
+            }
+            return conquistas;
+        } catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao buscar missões.");
+            return null;
         }
     }
 

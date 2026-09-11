@@ -42,7 +42,7 @@ public class MissaoRepository {
 
     public List<Missao> buscarTodas()
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException {
-        String sql = "SELECT * FROM tb_missao";
+        String sql = "SELECT missao_id, pontos, titulo, tipo_missao, descricao FROM tb_missao";
         try (Connection con = new ConnectionFactory().getConnection();
                 PreparedStatement pstmt = con.prepareStatement(sql)) {
             List<Missao> missoes = new ArrayList<>();
@@ -92,10 +92,23 @@ public class MissaoRepository {
 
     public List<Missao> buscarConcluidas(UsuarioSoulMove usuario)
         throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException{
-        String sql = "SELECT * FROM tb_missao WHERE missao_id IN (SELECT missao_id FROM tb_usuario_missao WHERE usuario_id = ? and status_missao = 'concluida')";
+        String sql = "SELECT missao_id, pontos, titulo, tipo_missao, descricao FROM tb_missao WHERE missao_id IN (SELECT missao_id FROM tb_usuario_missao WHERE usuario_id = ? and status_missao = 'concluida')";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
             pstmt.setLong(1, usuario.getId());
+            ResultSet rs = pstmt.executeQuery();
+            List<Missao> missoes = new ArrayList<>();
+            while (rs.next()) {
+                long id = rs.getBigDecimal("missao_id").longValue();
+                int pontos = rs.getInt("pontos");
+                String titulo = rs.getString("titulo");
+                TipoMissao tipo = TipoMissao.valueOf(rs.getString("tipo_missao"));
+                String descricao = rs.getString("descricao");
+
+                Missao missao = new Missao(id, titulo, tipo, descricao, pontos);
+                missoes.add(missao);
+            }
+            return missoes;
         } catch (SQLException e){
             OracleExceptionTranslator.translateException(e, "Erro ao buscar missões.");
             return null;
