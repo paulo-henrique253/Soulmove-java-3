@@ -15,7 +15,8 @@ import java.sql.SQLException;
 public class UsuarioRepository {
 
 
-    public UsuarioSoulMove cadastrar(String nome, String email, String senha)throws ConstraintViolationException, NullDataException, TooLargeException, DatabaseException{
+    public UsuarioSoulMove cadastrar(String nome, String email, String senha)
+            throws ConstraintViolationException, NullDataException, TooLargeException, DatabaseException{
         String sql = "INSERT INTO TB_USUARIO(nome, pontos, email, data_cadastro, senha) VALUES(?, ?, ?, ?, ?)";
 
         try (Connection con = new ConnectionFactory().getConnection();
@@ -63,8 +64,8 @@ public class UsuarioRepository {
         }
     }
 
-    public UsuarioSoulMove buscar(String email) throws DatabaseException, UnableToFindEntityException{
-        String sql = "SELECT * FROM tb_usuario WHERE email = ?";
+    public UsuarioSoulMove buscar(String email) throws DatabaseException, UnableToFindEntityException, ConstraintViolationException, NullDataException, TooLargeException {
+        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_id FROM tb_usuario WHERE email = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
 
@@ -74,12 +75,12 @@ public class UsuarioRepository {
 
         } catch (SQLException e){
             throw new DatabaseException("Ocorreu um erro inesperado no banco de dados.",e);
-        } catch (UnableToFindEntityException e){
+        } catch (Exception e){
             throw e;
         }
     }
 
-    public UsuarioSoulMove executarBusca(PreparedStatement pstmt) throws SQLException, UnableToFindEntityException{
+    public UsuarioSoulMove executarBusca(PreparedStatement pstmt) throws SQLException, UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
         ResultSet rs = pstmt.executeQuery();
         if (rs.next()){
             long id = rs.getBigDecimal("usuario_id").longValue();
@@ -87,10 +88,11 @@ public class UsuarioRepository {
             String email = rs.getString("email");
             String senha = rs.getString("senha");
             LocalDate data = rs.getDate("data_cadastro").toLocalDate();
-            int pontos =rs.getInt("pontos");
+            int pontos = rs.getInt("pontos");
 
-
-            return new UsuarioSoulMove(id, nome, pontos, email , data);
+            UsuarioSoulMove usuario = new UsuarioSoulMove(id, nome, pontos, email , data);
+            usuario.setTituloAtual(new ConquistaRepository().buscar(rs.getLong("titulo_id")));
+            return usuario;
         }
         else {
             throw new UnableToFindEntityException("Usuario Não encontrado.");

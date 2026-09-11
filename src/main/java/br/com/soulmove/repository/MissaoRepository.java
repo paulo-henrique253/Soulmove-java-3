@@ -2,6 +2,7 @@ package br.com.soulmove.repository;
 
 
 import br.com.soulmove.model.Missao;
+import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.exceptions.*;
 import br.com.soulmove.model.type.TipoMissao;
 
@@ -89,8 +90,15 @@ public class MissaoRepository {
     }
 
 
-    public List<Missao> buscarConcluidas(UsuarioSoulMove usuario){
+    public List<Missao> buscarConcluidas(UsuarioSoulMove usuario)
+        throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException{
         String sql = "SELECT * FROM tb_missao WHERE missao_id IN (SELECT missao_id FROM tb_usuario_missao WHERE usuario_id = ? and status_missao = 'concluida')";
-
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+            pstmt.setLong(1, usuario.getId());
+        } catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao buscar missões.");
+            return null;
+        }
     }
 }
