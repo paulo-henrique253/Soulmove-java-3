@@ -34,9 +34,13 @@ public class UsuarioSoulMove extends Usuario {
 
     @Override
     public String toString() {
+        String t = "Nenhum";
+        if(tituloAtual != null){
+            t = tituloAtual.getTitulo();
+        }
         return super.toString() +
                 "\npontos: " + pontos +
-                "\ntituloAtual: " + tituloAtual.getTitulo()
+                "\ntituloAtual: " + t
                 ;
     }
 }

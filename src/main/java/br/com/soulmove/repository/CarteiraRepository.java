@@ -31,7 +31,6 @@ public class CarteiraRepository {
             return new CarteiraUsuario(id, usuario, 0.0);
 
         }catch (SQLException e){
-            e.printStackTrace();
             OracleExceptionTranslator.translateException(e, "Erro ao cadastrar carteira");
             return null;
         }

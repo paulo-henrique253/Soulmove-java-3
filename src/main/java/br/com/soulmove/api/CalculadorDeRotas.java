@@ -46,7 +46,7 @@ public class CalculadorDeRotas {
     }
 
     // 2. Cálculo de Rota usando OSRM
-    public static double calcularEExibirRota(Coordenadas origem, Coordenadas destino) throws Exception {
+    public static double calcularRota(Coordenadas origem, Coordenadas destino) throws Exception {
         // Usa Locale.US para garantir o ponto decimal (ex: -23.561410 e não -23,561410)
         String url = String.format(Locale.US,
                 "https://router.project-osrm.org/route/v1/driving/%.6f,%.6f;%.6f,%.6f?overview=false",
@@ -92,7 +92,7 @@ public class CalculadorDeRotas {
                 System.out.println("Destino encontrado: " + destino);
                 System.out.println("Calculando rota...");
 
-                calcularEExibirRota(origem, destino);
+                calcularRota(origem, destino);
             } else {
                 System.out.println("Endereço não encontrado.");
             }

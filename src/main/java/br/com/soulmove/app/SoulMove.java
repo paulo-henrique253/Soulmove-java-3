@@ -11,7 +11,6 @@ import br.com.soulmove.model.type.TipoMissao;
 import br.com.soulmove.model.type.Veiculo;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 
 public class SoulMove {
@@ -50,7 +49,6 @@ public class SoulMove {
 
                     }
                     catch (UnableToFindEntityException e){
-                        e.printStackTrace();
                         System.out.println(e.getMessage());
                         System.out.println("Email não cadastrado!\n");
                     }
@@ -107,15 +105,18 @@ public class SoulMove {
             System.out.println("""
                     ✮⋆˙ Escolha uma das opções abaixo:
                     
-                        ⋮ ⌗ ┆ 1. Cadastrar usuário.
-                        ⋮ ⌗ ┆ 2. Fazer login
-                        ⋮ ⌗ ┆ 2. Verificar dados.
-                        ⋮ ⌗ ┆ 3. Calcular emissão.
-                        ⋮ ⌗ ┆ 4. Converter pontos.
-                        ⋮ ⌗ ┆ 5. Verificar missões.
-                        ⋮ ⌗ ┆ 6. Simular viajem.
-                        ⋮ ⌗ ┆ 7. Ver histórico.
-                        ⋮ ⌗ ┆ 0. SAIR DO PROGRAMA.
+                        ⋮ ⌗ ┆ 1.  Cadastrar usuário.
+                        ⋮ ⌗ ┆ 2.  Fazer login
+                        ⋮ ⌗ ┆ 3.  Vizualizar perfil.
+                        ⋮ ⌗ ┆ 4.  Simular Missão.
+                        ⋮ ⌗ ┆ 5.  Ver histórico de viagens.
+                        ⋮ ⌗ ┆ 6.  Verificar missões.
+                        ⋮ ⌗ ┆ 7.  Completar missão.
+                        ⋮ ⌗ ┆ 8.  Verificar conquistas.
+                        ⋮ ⌗ ┆ 9.  Completar conquista
+                        ⋮ ⌗ ┆ 10. Adicionar itulo ao perfil
+                        ⋮ ⌗ ┆ 11. Converter Pontos
+                        ⋮ ⌗ ┆ 0.  SAIR DO PROGRAMA.
                     """);
 
             System.out.print("Insira a opção: ");
@@ -192,7 +193,7 @@ public class SoulMove {
                 }
 
                 case 4 -> {
-                    System.out.println("\n" + "- - - Calcular emissão - - -" + "\n");
+                    System.out.println("\n" + "- - - Simular viagem - - -" + "\n");
 
                     try {
                         System.out.println("Insira a origem da viagem. EXEMPLO: 'Avenida Paulista, 1000, São Paulo'");
@@ -206,7 +207,7 @@ public class SoulMove {
                         CalculadorDeRotas.Coordenadas coordenadasD = CalculadorDeRotas.buscarCoordenadas(destino);
 
                         System.out.println("Calculando rotas...\n");
-                        double kmPercorridos = CalculadorDeRotas.calcularEExibirRota(coordenadasO, coordenadasD);
+                        double kmPercorridos = CalculadorDeRotas.calcularRota(coordenadasO, coordenadasD);
 
 
                         String veiculo = "";
@@ -219,17 +220,17 @@ public class SoulMove {
                             System.out.println("Insira o veículo:");
                             veiculo = leitura.nextLine();
                             try {
-                                Veiculo.valueOf(veiculo);
+                                Veiculo.getTipoVeiculo(veiculo);
                             } catch (IllegalArgumentException e) {
                                 veiculo = "ERRO";
                             }
 
                         }while (veiculo.equals("ERRO"));
 
-                        double carbonoEmitido = kmPercorridos * Veiculo.valueOf(veiculo).getEmissao();
+                        double carbonoEmitido = kmPercorridos * Veiculo.getTipoVeiculo(veiculo).getEmissao();
                         double carbonoEconomizado = Veiculo.CARRO.getEmissao() * carbonoEmitido;
 
-                        viagemService.viajar(origem, destino, Veiculo.valueOf(veiculo), kmPercorridos, carbonoEconomizado, carbonoEmitido, usuarioAtual);
+                        viagemService.viajar(origem, destino, Veiculo.getTipoVeiculo(veiculo), kmPercorridos, carbonoEconomizado, carbonoEmitido, usuarioAtual);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -270,7 +271,7 @@ public class SoulMove {
                         }
                     }
                     catch (Exception e){
-                        e.printStackTrace();
+
                         System.out.println(e.getMessage());
                     }
                 }

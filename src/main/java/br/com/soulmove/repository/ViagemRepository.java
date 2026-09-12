@@ -34,8 +34,8 @@ public class ViagemRepository {
             if (rs.next()){
                 Viagem viagem = new Viagem();
 
-                viagem.setData(rs.getDate("data_viagem").toLocalDate());
-                viagem.setId(rs.getBigDecimal("viagem_id").longValue());
+                viagem.setData(rs.getDate(2).toLocalDate());
+                viagem.setId(rs.getBigDecimal(1).longValue());
                 viagem.setOrigem(origem);
                 viagem.setDestino(destino);
                 viagem.setCarbonoEmitido(carbono_emitido);

@@ -74,7 +74,6 @@ public class UsuarioRepository {
             return this.executarBusca(pstmt);
 
         } catch (SQLException e){
-            e.printStackTrace();
             throw new DatabaseException("Ocorreu um erro inesperado no banco de dados.",e);
         } catch (Exception e){
             throw e;
