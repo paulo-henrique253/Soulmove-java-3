@@ -31,4 +31,12 @@ public class UsuarioSoulMove extends Usuario {
     public void setTituloAtual(Conquista tituloAtual) {
         this.tituloAtual = tituloAtual;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() +
+                "\npontos: " + pontos +
+                "\ntituloAtual: " + tituloAtual.getTitulo()
+                ;
+    }
 }

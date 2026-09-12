@@ -47,7 +47,7 @@ public class UsuarioRepository {
 
     public UsuarioSoulMove buscar(long id) 
     throws DatabaseException, ConstraintViolationException, TooLargeException, NullDataException, UnableToFindEntityException{
-        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_atual_id FROM tb_usuario WHERE id = ?";
+        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_atual FROM tb_usuario WHERE id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
 
@@ -65,7 +65,7 @@ public class UsuarioRepository {
     }
 
     public UsuarioSoulMove buscar(String email) throws DatabaseException, UnableToFindEntityException, ConstraintViolationException, NullDataException, TooLargeException {
-        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_atual_id FROM tb_usuario WHERE email = ?";
+        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_atual FROM tb_usuario WHERE email = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
 
@@ -93,7 +93,7 @@ public class UsuarioRepository {
 
             UsuarioSoulMove usuario = new UsuarioSoulMove(id, nome, pontos, email , data, senha);
             try {
-                usuario.setTituloAtual(new ConquistaRepository().buscar(rs.getLong("titulo_atual_id")));
+                usuario.setTituloAtual(new ConquistaRepository().buscar(rs.getLong("titulo_atual")));
             } catch (UnableToFindEntityException e){
                 usuario.setTituloAtual(null);
             }
@@ -146,6 +146,23 @@ public class UsuarioRepository {
         }catch (SQLException e){
             OracleExceptionTranslator.translateException(e, "Erro ao excluir usuario");
             return -1;
+        }
+    }
+
+
+    public void alterarPontos(UsuarioSoulMove usuario, int pontos) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
+        String sql = "UPDATE tb_usuario SET pontos = ? WHERE = usuario_id = ?";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+            pstmt.setInt(1, pontos);
+            pstmt.setLong(2, usuario.getId());
+
+            int registros = pstmt.executeUpdate();
+            if (registros == 0)
+                throw new UnableToFindEntityException("Erro ao alterar pontos: entidade não encontrada", "TB_USUARIO");
+
+        }catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao alterar pontos");
         }
     }
 }

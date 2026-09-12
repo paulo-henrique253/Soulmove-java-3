@@ -1,15 +1,14 @@
 package br.com.soulmove.app;
 
-import br.com.soulmove.Service.ConquistaService;
-import br.com.soulmove.Service.MissaoService;
-import br.com.soulmove.Service.UsuarioService;
-import br.com.soulmove.Service.ViagemService;
+import br.com.soulmove.Service.*;
+import br.com.soulmove.api.CalculadorDeRotas;
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.Viagem;
 import br.com.soulmove.model.exceptions.*;
 import br.com.soulmove.model.type.TipoMissao;
+import br.com.soulmove.model.type.Veiculo;
 
 import java.util.List;
 import java.util.Locale;
@@ -22,17 +21,12 @@ public class SoulMove {
         MissaoService missaoService = new MissaoService();
         ConquistaService conquistaService = new ConquistaService();
         ViagemService viagemService = new ViagemService();
+        CarteiraService carteiraService = new CarteiraService();
 
         Scanner leitura = new Scanner(System.in);
 
         UsuarioSoulMove usuarioAtual = null;
 
-        //TEMPORARIO
-        try {
-            usuarioAtual = usuarioService.logar("zeni@email.com", "123");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
         while (usuarioAtual == null){
 
             System.out.println("""
@@ -189,11 +183,56 @@ public class SoulMove {
 
                 case 3 -> {
                     System.out.println("\n" + "- - - Vizualizar Perfil - - -" + "\n");
-
+                    try {
+                        System.out.println(usuarioAtual);
+                        System.out.println("Saldo: " + carteiraService.buscar(usuarioAtual).getSaldo());
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                 }
 
                 case 4 -> {
                     System.out.println("\n" + "- - - Calcular emissão - - -" + "\n");
+
+                    try {
+                        System.out.println("Insira a origem da viagem. EXEMPLO: 'Avenida Paulista, 1000, São Paulo'");
+                        String origem = leitura.next() + leitura.nextLine();
+
+                        System.out.println("Insira o destino da viagem. EXEMPLO: 'Avenida Paulista, 1000, São Paulo'");
+                        String destino = leitura.next() + leitura.nextLine();
+
+                        System.out.println("\nBuscando as coordenadas...\n");
+                        CalculadorDeRotas.Coordenadas coordenadasO = CalculadorDeRotas.buscarCoordenadas(origem);
+                        CalculadorDeRotas.Coordenadas coordenadasD = CalculadorDeRotas.buscarCoordenadas(destino);
+
+                        System.out.println("Calculando rotas...\n");
+                        double kmPercorridos = CalculadorDeRotas.calcularEExibirRota(coordenadasO, coordenadasD);
+
+
+                        String veiculo = "";
+
+                        do {
+
+                            for (Veiculo v : Veiculo.values()){
+                                System.out.println(v.getVeiculo());
+                            }
+                            System.out.println("Insira o veículo:");
+                            veiculo = leitura.nextLine();
+                            try {
+                                Veiculo.valueOf(veiculo);
+                            } catch (IllegalArgumentException e) {
+                                veiculo = "ERRO";
+                            }
+
+                        }while (veiculo.equals("ERRO"));
+
+                        double carbonoEmitido = kmPercorridos * Veiculo.valueOf(veiculo).getEmissao();
+                        double carbonoEconomizado = Veiculo.CARRO.getEmissao() * carbonoEmitido;
+
+                        viagemService.viajar(origem, destino, Veiculo.valueOf(veiculo), kmPercorridos, carbonoEconomizado, carbonoEmitido, usuarioAtual);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
 
                 }
 
@@ -328,7 +367,18 @@ public class SoulMove {
 
                 case 11 -> {
                     System.out.println("\n" + "- - - Converter pontos - - -" + "\n");
-
+                    try {
+                        System.out.println("Voce tem " + usuarioAtual.getPontos() + " pontos");
+                        System.out.println("Insira a quantidade de pontos que deseja resgatar: ");
+                        int quantidade = leitura.nextInt();
+                        usuarioService.resgatarPontos(usuarioAtual, quantidade);
+                    }
+                    catch (InvalidDataException e){
+                        System.out.println("ERRO! Você não possui pontos o bastante!");
+                    }
+                    catch (Exception e){
+                        System.out.println(e.getMessage());
+                    }
                 }
 
                 // Funcionalidades de "adm"
@@ -525,6 +575,7 @@ public class SoulMove {
                 case 0 -> {
                     System.out.println("\n" + "- - - Saindo do programa - - -" + "\n");
 
+
                 }
 
                 default -> {
@@ -539,12 +590,4 @@ public class SoulMove {
             leitura.next();
         }
     }
-
-
-
-
-
-
-
-
 }

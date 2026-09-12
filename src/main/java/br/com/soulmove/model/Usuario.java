@@ -62,4 +62,12 @@ public class Usuario {
     public boolean isSenha(String senha){
         return this.senha.equals(senha);
     }
+
+    @Override
+    public String toString() {
+        return  "nome: '" + nome + '\'' +
+                "\nemail: '" + email + '\'' +
+                "\ndataCadastro: " + dataCadastro
+                ;
+    }
 }
