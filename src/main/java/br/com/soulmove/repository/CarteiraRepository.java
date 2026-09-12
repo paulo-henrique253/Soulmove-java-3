@@ -25,11 +25,13 @@ public class CarteiraRepository {
             long id = 0;
 
             if (rs.next()){
-                id = rs.getBigDecimal("carteira_id").longValue();
+                id = rs.getBigDecimal(1).longValue();
             }
+
             return new CarteiraUsuario(id, usuario, 0.0);
 
         }catch (SQLException e){
+            e.printStackTrace();
             OracleExceptionTranslator.translateException(e, "Erro ao cadastrar carteira");
             return null;
         }
@@ -60,6 +62,7 @@ public class CarteiraRepository {
         String sql = "UPDATE tb_carteira SET saldo_mobilidade = ? WHERE carteira_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
+
             pstmt.setDouble(1, saldo);
             pstmt.setLong(2, carteira.getId());
 
