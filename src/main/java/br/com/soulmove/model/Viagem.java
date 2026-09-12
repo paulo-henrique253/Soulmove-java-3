@@ -88,4 +88,17 @@ public class Viagem {
     public void setUsuario(UsuarioSoulMove usuario) {
         this.usuario = usuario;
     }
+
+    @Override
+    public String toString() {
+        return  "Id: " + id +
+                "\nData: " + data +
+                "\nOrigem: '" + origem + '\'' +
+                "\nDestino: '" + destino + '\'' +
+                "\nTipoVeiculo: " + tipoVeiculo +
+                "\nKm Percorridos: " + kmPercorrido +
+                "\nCarbono economizado: " + carbonoEconomizado +
+                "\nCarbono emitido: " + carbonoEmitido
+                ;
+    }
 }

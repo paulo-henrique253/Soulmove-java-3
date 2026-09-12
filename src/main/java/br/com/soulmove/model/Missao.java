@@ -60,4 +60,14 @@ public class Missao {
     public void setPontos(int pontos) {
         this.pontos = pontos;
     }
+
+    @Override
+    public String toString() {
+        return  "Id: " + id +
+                "\nTitulo: '" + titulo + '\'' +
+                "\nTipo: " + tipo.getTipo() +
+                "\nDescricao: '" + descricao + '\'' +
+                "\nPontos: " + pontos
+                ;
+    }
 }
