@@ -142,5 +142,21 @@ public class ConquistaRepository {
         }
     }
 
+    public void completar(UsuarioSoulMove usuario, Conquista conquista)
+            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException{
 
+        String sql = "INSERT INTO tb_usuario_conquista (usuario_id, conquista_id) VALUES (?, ?)";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+
+            pstmt.setLong(1, usuario.getId());
+            pstmt.setLong(2, conquista.getId());
+
+            pstmt.executeUpdate();
+
+
+        } catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao completar conquista");
+        }
+    }
 }

@@ -4,6 +4,7 @@ package br.com.soulmove.repository;
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.exceptions.*;
+import br.com.soulmove.model.type.StatusMissao;
 import br.com.soulmove.model.type.TipoMissao;
 
 import java.sql.Connection;
@@ -114,4 +115,21 @@ public class MissaoRepository {
             return null;
         }
     }
+
+    public void completar(UsuarioSoulMove usuario, Missao missao)
+    throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException{
+        String sql = "INSERT INTO tb_usuario_missao (status_missao, pontuacao_recebida, usuario_id, missao_id) ";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+
+            pstmt.setString(1,StatusMissao.CONCLUIDA.getStatus());
+            pstmt.setInt(2, missao.getPontos());
+            pstmt.setLong(3, usuario.getId());
+            pstmt.setLong(4, missao.getId());
+
+        }catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao completar missao");
+        }
+    }
+
 }

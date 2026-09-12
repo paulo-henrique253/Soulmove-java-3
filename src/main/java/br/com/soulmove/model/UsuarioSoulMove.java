@@ -11,8 +11,8 @@ public class UsuarioSoulMove extends Usuario {
         super();
     }
 
-    public UsuarioSoulMove(long id, String nome, int pontos, String email, LocalDate dataCadastro) {
-        super(id, nome, email, dataCadastro);
+    public UsuarioSoulMove(long id, String nome, int pontos, String email, LocalDate dataCadastro, String senha) {
+        super(id, nome, email, dataCadastro, senha);
         this.pontos = pontos;
     }
 

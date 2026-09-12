@@ -7,15 +7,16 @@ public class Usuario {
     private String nome;
     private String email;
     private LocalDate dataCadastro;
-
+    private String senha;
 
     public Usuario (){}
 
-    public Usuario(long id, String nome, String email, LocalDate dataCadastro) {
+    public Usuario(long id, String nome, String email, LocalDate dataCadastro, String senha) {
         this.id = id;
         this.nome = nome;
         this.email = email;
         this.dataCadastro = dataCadastro;
+        this.senha = senha;
     }
 
     public long getId() {
@@ -48,5 +49,17 @@ public class Usuario {
 
     public void setDataCadastro(LocalDate dataCadastro) {
         this.dataCadastro = dataCadastro;
+    }
+
+    public boolean setSenha(String senhaAtual, String novaSenha){
+        if (this.senha.equals(senhaAtual)){
+            this.senha = novaSenha;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isSenha(String senha){
+        return this.senha.equals(senha);
     }
 }

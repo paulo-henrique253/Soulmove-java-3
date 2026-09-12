@@ -35,7 +35,7 @@ public class UsuarioRepository {
             ResultSet rs = pstmt.getGeneratedKeys();
             if (rs.next()){
                 long id = rs.getBigDecimal(1).longValue();
-                return new UsuarioSoulMove(id, nome, 0, email, data);
+                return new UsuarioSoulMove(id, nome, 0, email, data, senha);
             }
 
             return null;
@@ -90,7 +90,7 @@ public class UsuarioRepository {
             LocalDate data = rs.getDate("data_cadastro").toLocalDate();
             int pontos = rs.getInt("pontos");
 
-            UsuarioSoulMove usuario = new UsuarioSoulMove(id, nome, pontos, email , data);
+            UsuarioSoulMove usuario = new UsuarioSoulMove(id, nome, pontos, email , data, senha);
             usuario.setTituloAtual(new ConquistaRepository().buscar(rs.getLong("titulo_id")));
             return usuario;
         }
