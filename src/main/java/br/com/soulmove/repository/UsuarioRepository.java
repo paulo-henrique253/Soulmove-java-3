@@ -47,7 +47,7 @@ public class UsuarioRepository {
 
     public UsuarioSoulMove buscar(long id) 
     throws DatabaseException, ConstraintViolationException, TooLargeException, NullDataException, UnableToFindEntityException{
-        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_id FROM tb_usuario WHERE id = ?";
+        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_atual_id FROM tb_usuario WHERE id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
 
@@ -65,7 +65,7 @@ public class UsuarioRepository {
     }
 
     public UsuarioSoulMove buscar(String email) throws DatabaseException, UnableToFindEntityException, ConstraintViolationException, NullDataException, TooLargeException {
-        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_id FROM tb_usuario WHERE email = ?";
+        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_atual_id FROM tb_usuario WHERE email = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
 
@@ -74,6 +74,7 @@ public class UsuarioRepository {
             return this.executarBusca(pstmt);
 
         } catch (SQLException e){
+            e.printStackTrace();
             throw new DatabaseException("Ocorreu um erro inesperado no banco de dados.",e);
         } catch (Exception e){
             throw e;
@@ -91,7 +92,12 @@ public class UsuarioRepository {
             int pontos = rs.getInt("pontos");
 
             UsuarioSoulMove usuario = new UsuarioSoulMove(id, nome, pontos, email , data, senha);
-            usuario.setTituloAtual(new ConquistaRepository().buscar(rs.getLong("titulo_id")));
+            try {
+                usuario.setTituloAtual(new ConquistaRepository().buscar(rs.getLong("titulo_atual_id")));
+            } catch (UnableToFindEntityException e){
+                usuario.setTituloAtual(null);
+            }
+
             return usuario;
         }
         else {

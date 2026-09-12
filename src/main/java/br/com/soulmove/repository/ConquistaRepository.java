@@ -116,6 +116,28 @@ public class ConquistaRepository {
         }
     }
 
+    public int editar(long id, Conquista conquista)
+            throws DatabaseException, ConstraintViolationException,TooLargeException, NullDataException ,UnableToFindEntityException {
+        String sql = "UPDATE tb_conquista SET pontos = ?, nome = ?, titulo = ?, descricao = ? WHERE conquista_id = ?";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+
+            pstmt.setInt(1, conquista.getPontos());
+            pstmt.setString(2, conquista.getNome());
+            pstmt.setString(3, conquista.getTitulo());
+            pstmt.setString(4, conquista.getDescricao());
+            pstmt.setLong(5, conquista.getId());
+
+            int registros = pstmt.executeUpdate();
+            if (registros == 0)
+                throw new UnableToFindEntityException("Erro ao editar conquista: entidade não encontrada");
+            return registros;
+        } catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao editar conquista");
+            return -1;
+        }
+    }
+
     public List<Conquista> buscarConcluidas(UsuarioSoulMove usuario)
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException{
         String sql = "SELECT conquista_id, pontos, titulo, nome, descricao FROM tb_conquista WHERE conquista_id IN (SELECT conquista_id FROM tb_usuario_conquista WHERE usuario_id = ?)";

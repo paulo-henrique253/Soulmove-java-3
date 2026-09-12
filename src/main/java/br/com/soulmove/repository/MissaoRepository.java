@@ -43,7 +43,7 @@ public class MissaoRepository {
 
     public List<Missao> buscarTodas()
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException {
-        String sql = "SELECT missao_id, pontos, titulo, tipo_missao, descricao FROM tb_missao";
+        String sql = "SELECT missao_id, pontos_missao, titulo, tipo_missao, descricao FROM tb_missao";
         try (Connection con = new ConnectionFactory().getConnection();
                 PreparedStatement pstmt = con.prepareStatement(sql)) {
             List<Missao> missoes = new ArrayList<>();
@@ -51,7 +51,7 @@ public class MissaoRepository {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 long id = rs.getBigDecimal("missao_id").longValue();
-                int pontos = rs.getInt("pontos");
+                int pontos = rs.getInt("pontos_missao");
                 String titulo = rs.getString("titulo");
                 TipoMissao tipo = TipoMissao.valueOf(rs.getString("tipo_missao"));
                 String descricao = rs.getString("descricao");
@@ -90,10 +90,34 @@ public class MissaoRepository {
         }
     }
 
+    public int editar(long id, Missao missao)
+            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException {
+        String sql = "UPDATE tb_missao SET pontos_missao = ?, titulo = ?, descricao = ?, tipo_missao = ? WHERE id = ?";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+
+            pstmt.setInt(1, missao.getPontos());
+            pstmt.setString(2, missao.getTitulo());
+            pstmt.setString(3, missao.getDescricao());
+            pstmt.setString(4, missao.getTipo().getTipo());
+            pstmt.setLong(5, missao.getId());
+
+            int registros = pstmt.executeUpdate();
+            if (registros == 0)
+                throw new UnableToFindEntityException("Erro ao editar missao: entidade não encontrada");
+
+            return registros;
+
+        } catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao editar missao");
+            return -1;
+        }
+    }
+
 
     public List<Missao> buscarConcluidas(UsuarioSoulMove usuario)
         throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException{
-        String sql = "SELECT missao_id, pontos, titulo, tipo_missao, descricao FROM tb_missao WHERE missao_id IN (SELECT missao_id FROM tb_usuario_missao WHERE usuario_id = ? and status_missao = 'concluida')";
+        String sql = "SELECT missao_id, pontos_missao, titulo, tipo_missao, descricao FROM tb_missao WHERE missao_id IN (SELECT missao_id FROM tb_usuario_missao WHERE usuario_id = ? and status_missao = 'concluida')";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
             pstmt.setLong(1, usuario.getId());
@@ -101,7 +125,7 @@ public class MissaoRepository {
             List<Missao> missoes = new ArrayList<>();
             while (rs.next()) {
                 long id = rs.getBigDecimal("missao_id").longValue();
-                int pontos = rs.getInt("pontos");
+                int pontos = rs.getInt("pontos_missao");
                 String titulo = rs.getString("titulo");
                 TipoMissao tipo = TipoMissao.valueOf(rs.getString("tipo_missao"));
                 String descricao = rs.getString("descricao");
