@@ -101,7 +101,7 @@ public class UsuarioRepository {
             return usuario;
         }
         else {
-            throw new UnableToFindEntityException("Usuario Não encontrado.");
+            throw new UnableToFindEntityException("Usuario Não encontrado.", "TB_USUARIO");
         }
     }
 
@@ -118,7 +118,7 @@ public class UsuarioRepository {
             registros = pstmt.executeUpdate();
 
             if (registros == 0)
-                throw new UnableToFindEntityException("Usuario não encontrado");
+                throw new UnableToFindEntityException("Usuario não encontrado", "TB_USUARIO");
 
             return registros;
         } catch (SQLException e){
@@ -139,7 +139,7 @@ public class UsuarioRepository {
             registros = pstmt.executeUpdate();
 
             if (registros == 0)
-                throw new UnableToFindEntityException("Usuario não encontrado.");
+                throw new UnableToFindEntityException("Usuario não encontrado.", "TB_USUARIO");
 
             return registros;
 

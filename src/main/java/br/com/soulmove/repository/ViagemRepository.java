@@ -16,7 +16,7 @@ import java.util.List;
 public class ViagemRepository {
     public Viagem registrar(String origem, String destino, Veiculo tipoVeiculo, double km_percorrido, double carbono_economizado, double carbono_emitido, UsuarioSoulMove usuario)
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException {
-        String sql = "INSERT INTO tb_viagens (origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuairo_id) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tb_viagem (origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuairo_id) VALUES(?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql, new String[] {"VIAGEM_ID", "DATA_VIAGEM"})){
             pstmt.setString(1, origem);
@@ -55,7 +55,7 @@ public class ViagemRepository {
 
     public List<Viagem> buscarHistorico(UsuarioSoulMove usuario)
         throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException{
-        String sql = "SELECT FROM tb_viagens viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuairo_id WHERE usuario_id = ?";
+        String sql = "SELECT FROM tb_viagem viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuairo_id WHERE usuario_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
             pstmt.setLong(1, usuario.getId());
@@ -86,7 +86,7 @@ public class ViagemRepository {
 
     public Viagem buscar(long id)
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException{
-        String sql = "SELECT FROM tb_viagens viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuairo_id WHERE viagem_id = ?";
+        String sql = "SELECT FROM tb_viagem viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuairo_id WHERE viagem_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
             pstmt.setLong(1, id);
@@ -106,7 +106,9 @@ public class ViagemRepository {
 
                 return viagem;
             }
-        return null;
+            else{
+                throw new UnableToFindEntityException("Erro ao buscar viagem: entidade não encontrada", "TB_VIAGEM");
+            }
         }catch (SQLException e){
             OracleExceptionTranslator.translateException(e, "Erro ao registrar viagem");
         }

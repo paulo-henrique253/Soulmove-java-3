@@ -1,17 +1,110 @@
 package br.com.soulmove.app;
 
+import br.com.soulmove.Service.ConquistaService;
+import br.com.soulmove.Service.MissaoService;
 import br.com.soulmove.Service.UsuarioService;
-import br.com.soulmove.model.exceptions.ConstraintViolationException;
-import br.com.soulmove.model.exceptions.InvalidDataException;
+import br.com.soulmove.Service.ViagemService;
+import br.com.soulmove.model.Conquista;
+import br.com.soulmove.model.Missao;
+import br.com.soulmove.model.UsuarioSoulMove;
+import br.com.soulmove.model.Viagem;
+import br.com.soulmove.model.exceptions.*;
+import br.com.soulmove.model.type.TipoMissao;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class SoulMove {
 
     public static void main(String[] args) {
         UsuarioService usuarioService = new UsuarioService();
+        MissaoService missaoService = new MissaoService();
+        ConquistaService conquistaService = new ConquistaService();
+        ViagemService viagemService = new ViagemService();
 
         Scanner leitura = new Scanner(System.in);
+
+        UsuarioSoulMove usuarioAtual = null;
+
+        //TEMPORARIO
+        try {
+            usuarioAtual = usuarioService.logar("zeni@email.com", "123");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        while (usuarioAtual == null){
+
+            System.out.println("""
+                    Deseja fazer login ou Criar uma nova conta?
+                    1. Fazer login
+                    2. Criar uma conta
+                    """);
+            System.out.println("Insira a opção");
+            int opcao = leitura.nextInt();
+            switch (opcao){
+                case 1 -> {
+                    System.out.println("Insira seu email: ");
+
+                    String email = leitura.next() + leitura.nextLine();
+
+                    System.out.println("Insira sua senha: ");
+                    String senha = leitura.nextLine();
+
+                    try {
+                        usuarioAtual = usuarioService.logar(email, senha);
+
+                    }
+                    catch (UnableToFindEntityException e){
+                        e.printStackTrace();
+                        System.out.println(e.getMessage());
+                        System.out.println("Email não cadastrado!\n");
+                    }
+                    catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+
+                case 2 ->{
+                    System.out.println("Insira seu nome: ");
+
+                    String nome = leitura.next() + leitura.nextLine();
+
+                    System.out.println("Insira seu email: ");
+                    String email = leitura.nextLine();
+
+                    System.out.println("Insira sua senha: ");
+                    String senha = leitura.nextLine();
+
+                    try {
+                        usuarioAtual = usuarioService.cadastrar(nome, email, senha);
+                    }
+                    catch (ConstraintViolationException e){
+
+                        System.out.println(e.getMessage());
+
+                        if (e.getConstraintName().equalsIgnoreCase("TB_USUARIO_UK"))
+                            System.out.println("ERRO!Email ja cadastrado, insira outro");
+                    }
+                    catch (TooLargeException e){
+
+                        System.out.println("ERRO!O campo \"" + e.getColumnName().toLowerCase() + "\" Não pode ser tão grande!");
+                    }
+                    catch (Exception e) {
+
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+
+            }
+
+        }
+
+
+
+
 
         int opcao = -1;
 
@@ -21,7 +114,8 @@ public class SoulMove {
                     ✮⋆˙ Escolha uma das opções abaixo:
                     
                         ⋮ ⌗ ┆ 1. Cadastrar usuário.
-                        ⋮ ⌗ ┆ 2. Verificar Dados.
+                        ⋮ ⌗ ┆ 2. Fazer login
+                        ⋮ ⌗ ┆ 2. Verificar dados.
                         ⋮ ⌗ ┆ 3. Calcular emissão.
                         ⋮ ⌗ ┆ 4. Converter pontos.
                         ⋮ ⌗ ┆ 5. Verificar missões.
@@ -35,10 +129,11 @@ public class SoulMove {
 
             switch (opcao) {
 
-                case 1:
+                case 1 -> {
                     System.out.println("\n" + "- - - Cadastrar usuário - - -" + "\n");
 
                     System.out.println("Insira seu nome");
+
                     String nome = leitura.next() + leitura.nextLine();
 
                     System.out.println("Insira seu email");
@@ -48,56 +143,400 @@ public class SoulMove {
                     String senha = leitura.nextLine();
 
                     try {
-                        usuarioService.cadastrar(nome, email, senha);
-                    } catch (ConstraintViolationException e){
+                        usuarioAtual = usuarioService.cadastrar(nome, email, senha);
+                    }
+                    catch (ConstraintViolationException e){
+
                         System.out.println(e.getMessage());
-                        if (e.getConstraintName().equalsIgnoreCase("TB_USUARIO_PK"))
-                            System.out.println("Email ja cadastrado, insira outro");
+
+                        if (e.getConstraintName().equalsIgnoreCase("TB_USUARIO_UK"))
+                            System.out.println("ERRO!Email ja cadastrado, insira outro");
+                    }
+                    catch (TooLargeException e){
+
+                        System.out.println("ERRO!O campo \"" + e.getColumnName().toLowerCase() + "\" Não pode ser tão grande!");
+                    }
+                    catch (Exception e) {
+
+                        System.out.println(e.getMessage());
+                    }
+
+                }
+
+                case 2 -> {
+                    System.out.println("\n" + "- - - Fazer Login - - -" + "\n");
+
+                    System.out.println("Insira seu email: ");
+
+                    String email = leitura.next() + leitura.nextLine();
+
+                    System.out.println("Insira sua senha: ");
+                    String senha = leitura.nextLine();
+
+                    try {
+                        usuarioAtual = usuarioService.logar(email, senha);
+
+                    }
+                    catch (UnableToFindEntityException e){
+
+                        System.out.println("Email não cadastrado!");
+                    }
+                    catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+
+                }
+
+                case 3 -> {
+                    System.out.println("\n" + "- - - Vizualizar Perfil - - -" + "\n");
+
+                }
+
+                case 4 -> {
+                    System.out.println("\n" + "- - - Calcular emissão - - -" + "\n");
+
+                }
+
+                case 5 ->{
+                    System.out.println("\n" + "- - - Ver Historico de Viagens - - -" + "\n");
+                    try {
+                        List<Viagem> viagens = viagemService.obterHistorico(usuarioAtual);
+                        if (viagens.isEmpty())
+                            System.out.println("Nenhuma viagem realizada");
+
+                        else {
+                            for (Viagem v : viagens){
+                                System.out.println(v);
+                                System.out.println("--------------------");
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+                case 6 -> {
+                    System.out.println("\n" + "- - - Verificar missões - - -" + "\n");
+                    try {
+                        List<Missao> missoes = missaoService.buscarMissoes();
+                        if (missoes.isEmpty()){
+                            System.out.println("Nenhuma missão cadastrada!");
+                        }
+                        else {
+                            for (Missao missao : missoes){
+                                System.out.println(missao);
+                                System.out.println("--------------------");
+                            }
+                        }
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+                case 7 ->{
+                    System.out.println("\n" + "- - - Completar missão - - -" + "\n");
+
+                    System.out.println("Insira o id da missão que deseja completar");
+                    long idM = leitura.nextLong();
+                    try {
+                        Missao missao = missaoService.buscar(idM);
+                        missaoService.completarMissao(usuarioAtual, missao);
+                    }
+                    catch (UnableToFindEntityException e){
+                        if(e.getTableName().equalsIgnoreCase("TB_MISSAO")){
+                            System.out.println("Id inválido!");
+                        } else System.out.println(e.getMessage());
+                    }
+                    catch (ConstraintViolationException e){
+                        if (e.getConstraintName().equalsIgnoreCase("TB_USUARIO_MISSAO_PK")){
+                            System.out.println("Missão ja concluida");
+                        } else System.out.println(e.getMessage());
+                    }
+                    catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+
+                }
+
+                case 8 ->{
+                    System.out.println("\n" + "- - - Verificar conquistas - - -" + "\n");
+                    try {
+                        List<Conquista> conquistas = conquistaService.buscarConquistas();
+                        if (conquistas.isEmpty())
+                            System.out.println("nenhuma conquista cadastrada");
+                        else {
+                            for (Conquista c : conquistas) {
+                                System.out.println(c);
+                                System.out.println("--------------------");
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+                case 9 ->{
+                    System.out.println("\n" + "- - - Completar conquista - - -" + "\n");
+                    try {
+                        System.out.println("Insira o id da conquista: ");
+                        long id = leitura.nextLong();
+                        Conquista conquista = conquistaService.buscar(id);
+                    }catch (UnableToFindEntityException e){
+                        if(e.getTableName().equalsIgnoreCase("TB_CONQUISTA"))
+                            System.out.println("Id Inválido");
+                        else
+                            System.out.println(e.getMessage());
+                    }
+                    catch (ConstraintViolationException e){
+                        if (e.getConstraintName().equalsIgnoreCase("TB_USUARIO_CONQUISTA_PK")){
+                            System.out.println("conquista ja concluida");
+                        } else System.out.println(e.getMessage());
+                    }
+                    catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+                case 10 ->{
+                    System.out.println("\n" + "- - - Adicionar titulo ao perfil - - -" + "\n");
+                    try {
+                        List<Conquista> conquistasConcluidas = conquistaService.buscarConcluidas(usuarioAtual);
+                        if (conquistasConcluidas.isEmpty()){
+                            System.out.println("Nenhuma conquista concluida");
+                        } else {
+                            for (Conquista c : conquistasConcluidas) {
+                                System.out.println(c);
+                                System.out.println("--------------------");
+                            }
+                            System.out.println("insira o id de uma conquista");
+                            long id = leitura.nextLong();
+                            Conquista conquista = conquistaService.buscar(id);
+                            usuarioService.alterarTitulo(usuarioAtual, conquista);
+                        }
+                    } catch (UnableToFindEntityException e){
+                        if(e.getTableName().equalsIgnoreCase("TB_CONQUISTA"))
+                            System.out.println("Id inválido");
+                        else System.out.println(e.getMessage());
+                    }
+                    catch (Exception e){
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+                case 11 -> {
+                    System.out.println("\n" + "- - - Converter pontos - - -" + "\n");
+
+                }
+
+                // Funcionalidades de "adm"
+
+                //missões
+                case 12 -> {
+                    System.out.println("\n" + "- - - Cadastrar missão - - -" + "\n");
+
+                    try {
+                        System.out.println("Insira os pontos:");
+                        int pontos = leitura.nextInt();
+
+                        System.out.println("insira o nome: ");
+                        String nome = leitura.next() + leitura.nextLine();
+
+                        String tipo = "";
+                        do {
+                            System.out.println("Tipos");
+                            for (TipoMissao t : TipoMissao.values()){
+                                System.out.println(t.getTipo());
+                            }
+
+                            System.out.println("\nInsira um tipo para a missao:");
+                            try {
+                                tipo = leitura.nextLine();
+                                TipoMissao.valueOf(tipo);
+                            } catch (IllegalArgumentException e){
+                                tipo = "ERRO";
+                                System.out.println("Valor inválido");
+                            }
+                        }while (tipo == "ERRO");
+
+                        System.out.println("Insira a descrição: ");
+                        String descricao = leitura.nextLine();
+
+
+                        missaoService.cadastrar(pontos, nome, TipoMissao.valueOf(tipo), descricao);
+                    }catch (TooLargeException e) {
+                        System.out.println("O campo \"" + e.getColumnName().toLowerCase() +"\" não pode ser tão grande!");
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
 
-                    break;
-                case 2:
+                }
 
-                case 3:
-                    System.out.println("\n" + "- - - Verificar dados - - -" + "\n");
+                case 13 -> {
+                    System.out.println("\n" + "- - - Editar missão - - -" + "\n");
 
-                    break;
+                    try {
+                        System.out.println("Insira o id da missão que deseja alterar: ");
+                        long id = leitura.nextLong();
 
-                case 4:
-                    System.out.println("\n" + "- - - Calcular emissão - - -" + "\n");
+                        missaoService.buscar(id);
 
-                    break;
+                        System.out.println("Insira os pontos:");
+                        int pontos = leitura.nextInt();
 
-                case 5:
-                    System.out.println("\n" + "- - - Converter pontos - - -" + "\n");
+                        System.out.println("insira o nome: ");
+                        String nome = leitura.next() + leitura.nextLine();
 
-                    break;
+                        String tipo = "";
+                        do {
+                            System.out.println("Tipos");
+                            for (TipoMissao t : TipoMissao.values()){
+                                System.out.println(t.getTipo());
+                            }
 
-                case 6:
-                    System.out.println("\n" + "- - - Verificar missões - - -" + "\n");
+                            System.out.println("\nInsira um tipo para a missao:");
+                            try {
+                                tipo = leitura.nextLine();
+                                TipoMissao.valueOf(tipo);
+                            } catch (IllegalArgumentException e){
+                                tipo = "ERRO";
+                                System.out.println("Valor inválido");
+                            }
+                        }while (tipo == "ERRO");
 
-                    break;
+                        System.out.println("Insira a descrição: ");
+                        String descricao = leitura.nextLine();
 
-                case 7:
-                    System.out.println("\n" + "- - - Simular viajem - - -" + "\n");
 
-                    break;
+                        missaoService.editar(id, new Missao(id, nome, TipoMissao.valueOf(tipo), descricao, pontos));
+                    } catch (UnableToFindEntityException e){
+                        if (e.getTableName().equalsIgnoreCase("TB_MISSAO"))
+                            System.out.println("Id inválido");
+                    }
+                    catch (TooLargeException e) {
+                        System.out.println("O campo \"" + e.getColumnName().toLowerCase() +"\" não pode ser tão grande!");
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
 
-                case 8:
-                    System.out.println("\n" + "- - - Ver histórico - - -" + "\n");
+                case 14 -> {
+                    System.out.println("\n" + "- - - Excluir missão - - -" + "\n");
 
-                    break;
+                    try {
+                        System.out.println("Insira o id da missão que deseja excluir: ");
+                        long id = leitura.nextLong();
+                        Missao missao = missaoService.buscar(id);
 
-                case 0:
+                        System.out.println(missao + "\n--------------------\n");
+
+                        System.out.println("Confirmar exclusão?(s/n)");
+                        String resp = leitura.next() + leitura.nextLine();
+                        if(resp.equalsIgnoreCase("s"))
+                            missaoService.excluir(missao);
+                        else
+                            System.out.println("Exclusão cancelada");
+
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+
+
+                //conquistas
+                case 15 -> {
+                    System.out.println("\n" + "- - - Cadastrar conquista - - -" + "\n");
+                    try {
+                        System.out.println("Insira o nome da conquista: ");
+                        String nome = leitura.next() + leitura.nextLine();
+
+                        System.out.println("Insira os pontos: ");
+                        int pontos = leitura.nextInt();
+
+                        System.out.println("Insira o titulo atrelado á conquista: ");
+                        String titulo = leitura.next() + leitura.nextLine();
+
+                        System.out.println("Insira a descrição");
+                        String descricao = leitura.nextLine();
+
+                        conquistaService.cadastrar(pontos, nome, titulo, descricao);
+                    }catch (TooLargeException e){
+                        System.out.println("O campo \"" +e.getColumnName()+ "\" Não pode ser tão grande!" );
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+                case 16 -> {
+                    System.out.println("\n" + "- - - Editar conquista - - -" + "\n");
+                    try {
+                        System.out.println("Insira o id da conquista que deseja alterar");
+                        long id = leitura.nextLong();
+
+                        conquistaService.buscar(id);
+
+                        System.out.println("Insira o nome da conquista: ");
+                        String nome = leitura.next() + leitura.nextLine();
+
+                        System.out.println("Insira os pontos: ");
+                        int pontos = leitura.nextInt();
+
+                        System.out.println("Insira o titulo atrelado á conquista: ");
+                        String titulo = leitura.next() + leitura.nextLine();
+
+                        System.out.println("Insira a descrição");
+                        String descricao = leitura.nextLine();
+
+                        conquistaService.editar(id, new Conquista(id, nome, descricao, pontos, titulo));
+                    }catch (UnableToFindEntityException e){
+                        System.out.println("id inválido");
+                    }
+                    catch (TooLargeException e){
+                        System.out.println("O campo \"" +e.getColumnName()+ "\" Não pode ser tão grande!" );
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+                case 17 -> {
+                    System.out.println("\n" + "- - - Excluir conquista - - -" + "\n");
+
+                    try {
+                        System.out.println("Insira o id: ");
+                        long id = leitura.nextLong();
+                        Conquista conquista = conquistaService.buscar(id);
+
+                        System.out.println(conquista + "\n--------------------\n");
+                        System.out.println("Confirmar exclusão(s/n): ");
+                        String resp = leitura.nextLine();
+                        if (resp.equalsIgnoreCase("s"))
+                            conquistaService.excluir(conquista);
+                        else System.out.println("Exclusão cancelada");
+
+
+                    }catch (Exception e){
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+                case 0 -> {
                     System.out.println("\n" + "- - - Saindo do programa - - -" + "\n");
-                    break;
 
-                default:
+                }
+
+                default -> {
                     System.out.println("\n" + "- - - Opção inválida - - - " + "\n");
-                    break;
+
+                }
+
+
             }
+
+            System.out.println("Aperte ENTER para continuar");
+            leitura.next();
         }
     }
 

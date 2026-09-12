@@ -69,6 +69,31 @@ public class MissaoRepository {
         }
     }
 
+    public Missao buscar(long id)
+            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException {
+        String sql = "SELECT pontos_missao, titulo, tipo_missao, descricao FROM tb_missao WHERE missao_id = ?";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setLong(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next()){
+                int pontos = rs.getInt("pontos_missao");
+                String titulo = rs.getString("titulo");
+                TipoMissao tipo = TipoMissao.valueOf(rs.getString("tipo_missao"));
+                String descricao = rs.getString("descricao");
+                return new Missao(id, titulo, tipo, descricao, pontos);
+
+            } else {
+                throw new UnableToFindEntityException("Erro ao buscar missão: entidade não encontrada", "TB_MISSAO");
+            }
+
+        }catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao buscar missão");
+            return null;
+        }
+    }
+
     public int excluir(Missao missao)
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException {
         String sql = "DELETE * FROM tb_missao WHERE id = ?";
@@ -81,7 +106,7 @@ public class MissaoRepository {
             registros = pstmt.executeUpdate();
 
             if (registros == 0)
-                throw new UnableToFindEntityException("Erro ao excluir: Entidade não encontrada");
+                throw new UnableToFindEntityException("Erro ao excluir: Entidade não encontrada", "TB_MISSAO");
             return registros;
 
         } catch (SQLException e) {
@@ -104,7 +129,7 @@ public class MissaoRepository {
 
             int registros = pstmt.executeUpdate();
             if (registros == 0)
-                throw new UnableToFindEntityException("Erro ao editar missao: entidade não encontrada");
+                throw new UnableToFindEntityException("Erro ao editar missao: entidade não encontrada", "TB_MISSAO");
 
             return registros;
 

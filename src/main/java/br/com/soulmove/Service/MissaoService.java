@@ -19,6 +19,13 @@ public class MissaoService {
         return rep.buscarConcluidas(usuario);
     }
 
+    public Missao buscar(long id) throws UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+        return rep.buscar(id);
+    }
+    public void editar(long id, Missao missao) throws UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+        rep.editar(id, missao);
+    }
+
     public void completarMissao(UsuarioSoulMove usuario, Missao missao) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
         rep.completar(usuario, missao);
     }

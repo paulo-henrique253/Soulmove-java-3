@@ -57,7 +57,7 @@ public class ConquistaRepository {
                 return new Conquista(id, nome, descricao, pontos, titulo);
 
             }
-            throw new UnableToFindEntityException("Conquista não encontrada");
+            throw new UnableToFindEntityException("Conquista não encontrada", "TB_CONQUISTA");
 
         }catch (SQLException e){
             OracleExceptionTranslator.translateException(e, "Erro ao buscar conquista");
@@ -106,7 +106,7 @@ public class ConquistaRepository {
             registros = pstmt.executeUpdate();
 
             if (registros == 0 )
-                throw new UnableToFindEntityException("Entidade não encontrada");
+                throw new UnableToFindEntityException("Entidade não encontrada", "TB_CONQUISTA");
 
             return registros;
 
@@ -130,7 +130,7 @@ public class ConquistaRepository {
 
             int registros = pstmt.executeUpdate();
             if (registros == 0)
-                throw new UnableToFindEntityException("Erro ao editar conquista: entidade não encontrada");
+                throw new UnableToFindEntityException("Erro ao editar conquista: entidade não encontrada", "TB_CONQUISTA");
             return registros;
         } catch (SQLException e){
             OracleExceptionTranslator.translateException(e, "Erro ao editar conquista");

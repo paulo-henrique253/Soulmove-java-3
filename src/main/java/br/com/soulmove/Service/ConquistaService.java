@@ -16,6 +16,9 @@ public class ConquistaService {
     public List<Conquista> buscarConcluidas(UsuarioSoulMove usuario) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
         return rep.buscarConcluidas(usuario);
     }
+    public Conquista buscar(long id) throws UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+        return rep.buscar(id);
+    }
 
     public void completarConquista(UsuarioSoulMove usuario, Conquista conquista) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
         rep.completar(usuario, conquista);
@@ -29,4 +32,8 @@ public class ConquistaService {
         rep.excluir(conquista);
     }
 
+    public void editar(long id, Conquista conquista) throws UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+
+        rep.editar(id, conquista);
+    }
 }
