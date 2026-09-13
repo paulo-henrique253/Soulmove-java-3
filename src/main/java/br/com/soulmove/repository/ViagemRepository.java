@@ -76,6 +76,7 @@ public class ViagemRepository {
 
                 viagens.add(viagem);
             }
+            return viagens;
 
         }catch (SQLException e){
             OracleExceptionTranslator.translateException(e, "Erro ao Obter histórico de viagem");
