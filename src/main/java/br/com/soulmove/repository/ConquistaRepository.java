@@ -194,9 +194,7 @@ public class ConquistaRepository {
             int registros = pstmt.executeUpdate();
             int registros2 = pstmt2.executeUpdate();
 
-            if(registros == 0 || registros2 == 0)
-                throw new UnableToFindEntityException("Erro ao excluir dependencias da conquista: entidade não encontrada", "TB");
-
+   
 
         }catch (SQLException e){
             OracleExceptionTranslator.translateException(e, "Erro ao excluir dependencias da conquista");

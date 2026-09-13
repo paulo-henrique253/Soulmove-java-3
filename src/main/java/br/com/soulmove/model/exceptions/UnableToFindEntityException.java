@@ -4,6 +4,7 @@ public class UnableToFindEntityException extends Exception {
     private String tableName;
     public UnableToFindEntityException(String message, String table) {
         super(message);
+        
         this.tableName = table;
     }
 

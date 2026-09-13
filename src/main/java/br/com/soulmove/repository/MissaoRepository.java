@@ -187,9 +187,6 @@ public class MissaoRepository {
              PreparedStatement pstmt = con.prepareStatement(sql)){
             pstmt.setLong(1, missao.getId());
             int registros = pstmt.executeUpdate();
-            if (registros == 0)
-                throw new UnableToFindEntityException("Erro ao excluir depencias da missao: entidade não encontrada", "TB_USUARIO_MISSAO");
-
 
         }catch (SQLException e){
             OracleExceptionTranslator.translateException(e, "Erro ao excluir dependencias da missao");
