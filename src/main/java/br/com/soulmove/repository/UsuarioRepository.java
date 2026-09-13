@@ -150,7 +150,7 @@ public class UsuarioRepository {
 
 
     public void alterarPontos(UsuarioSoulMove usuario, int pontos) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
-        String sql = "UPDATE tb_usuario SET pontos = ? WHERE = usuario_id = ?";
+        String sql = "UPDATE tb_usuario SET pontos = ? WHERE usuario_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
             pstmt.setInt(1, pontos);
