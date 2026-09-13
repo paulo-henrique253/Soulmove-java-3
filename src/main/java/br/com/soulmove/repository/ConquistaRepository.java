@@ -126,7 +126,7 @@ public class ConquistaRepository {
             pstmt.setString(2, conquista.getNome());
             pstmt.setString(3, conquista.getTitulo());
             pstmt.setString(4, conquista.getDescricao());
-            pstmt.setLong(5, conquista.getId());
+            pstmt.setLong(5, id);
 
             int registros = pstmt.executeUpdate();
             if (registros == 0)

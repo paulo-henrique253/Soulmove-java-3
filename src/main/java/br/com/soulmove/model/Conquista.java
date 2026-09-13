@@ -60,6 +60,11 @@ public class Conquista {
 
     @Override
     public String toString() {
-        return this.nome + "\t| " + this.pontos + "\t| " + this.titulo + "\t| " + this.descricao;
+        return  "Id: " + id +
+                "\nNome: '" + nome + '\'' +
+                "\nDescricao: '" + descricao + '\'' +
+                "\nTitulo: '" + titulo + '\'' +
+                "\nPontos: " + pontos
+                ;
     }
 }

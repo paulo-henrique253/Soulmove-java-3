@@ -53,7 +53,7 @@ public class MissaoRepository {
                 long id = rs.getBigDecimal("missao_id").longValue();
                 int pontos = rs.getInt("pontos_missao");
                 String titulo = rs.getString("titulo");
-                TipoMissao tipo = TipoMissao.valueOf(rs.getString("tipo_missao"));
+                TipoMissao tipo = TipoMissao.getTipoMissao(rs.getString("tipo_missao"));
                 String descricao = rs.getString("descricao");
 
                 Missao missao = new Missao(id, titulo, tipo, descricao, pontos);
@@ -80,7 +80,7 @@ public class MissaoRepository {
             if(rs.next()){
                 int pontos = rs.getInt("pontos_missao");
                 String titulo = rs.getString("titulo");
-                TipoMissao tipo = TipoMissao.valueOf(rs.getString("tipo_missao"));
+                TipoMissao tipo = TipoMissao.getTipoMissao(rs.getString("tipo_missao"));
                 String descricao = rs.getString("descricao");
                 return new Missao(id, titulo, tipo, descricao, pontos);
 
@@ -152,7 +152,7 @@ public class MissaoRepository {
                 long id = rs.getBigDecimal("missao_id").longValue();
                 int pontos = rs.getInt("pontos_missao");
                 String titulo = rs.getString("titulo");
-                TipoMissao tipo = TipoMissao.valueOf(rs.getString("tipo_missao"));
+                TipoMissao tipo = TipoMissao.getTipoMissao(rs.getString("tipo_missao"));
                 String descricao = rs.getString("descricao");
 
                 Missao missao = new Missao(id, titulo, tipo, descricao, pontos);

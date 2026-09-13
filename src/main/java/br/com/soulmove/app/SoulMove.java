@@ -338,6 +338,8 @@ public class SoulMove {
                         System.out.println("Insira o id da conquista: ");
                         long id = leitura.nextLong();
                         Conquista conquista = conquistaService.buscar(id);
+
+                        conquistaService.completarConquista(usuarioAtual, conquista);
                     }catch (UnableToFindEntityException e){
                         if(e.getTableName().equalsIgnoreCase("TB_CONQUISTA"))
                             System.out.println("Id Inválido");
@@ -576,7 +578,7 @@ public class SoulMove {
 
                         System.out.println(conquista + "\n--------------------\n");
                         System.out.println("Confirmar exclusão(s/n): ");
-                        String resp = leitura.nextLine();
+                        String resp = leitura.next() + leitura.nextLine();
                         if (resp.equalsIgnoreCase("s"))
                             conquistaService.excluir(conquista);
                         else System.out.println("Exclusão cancelada");
