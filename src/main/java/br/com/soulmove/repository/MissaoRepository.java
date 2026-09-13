@@ -167,7 +167,7 @@ public class MissaoRepository {
 
     public void completar(UsuarioSoulMove usuario, Missao missao)
     throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException{
-        String sql = "INSERT INTO tb_usuario_missao (status_missao, pontuacao_recebida, usuario_id, missao_id) ";
+        String sql = "INSERT INTO tb_usuario_missao (status_missao, pontuacao_recebida, usuario_id, missao_id) VALUES (?, ?, ?, ?)";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
 
