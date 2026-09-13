@@ -227,12 +227,18 @@ public class SoulMove {
 
                         }while (veiculo.equals("ERRO"));
 
+
                         double carbonoEmitido = kmPercorridos * Veiculo.getTipoVeiculo(veiculo).getEmissao();
                         double carbonoEconomizado = (Veiculo.CARRO.getEmissao() * kmPercorridos) - carbonoEmitido;
 
+                        System.out.println(kmPercorridos);
+                        System.out.println(carbonoEmitido);
+                        System.out.println(Veiculo.CARRO.getEmissao());
+                        System.out.println(Veiculo.getTipoVeiculo(veiculo).getEmissao());
+
                         viagemService.viajar(origem, destino, Veiculo.getTipoVeiculo(veiculo), kmPercorridos, carbonoEconomizado, carbonoEmitido, usuarioAtual);
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        System.out.println(e.getMessage());
                     }
 
                 }

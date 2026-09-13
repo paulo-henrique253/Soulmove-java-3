@@ -74,6 +74,7 @@ public class ViagemRepository {
                 viagem.setKmPercorrido(rs.getDouble("km_percorrido"));
                 viagem.setUsuario(new UsuarioRepository().buscar(rs.getBigDecimal("usuario_id").longValue()));
                 viagem.setTipoVeiculo(Veiculo.getTipoVeiculo(rs.getString("tipo_veiculo")));
+                viagem.setCarbonoEconomizado(rs.getDouble("carbono_economizado"));
                 viagens.add(viagem);
             }
             return viagens;
