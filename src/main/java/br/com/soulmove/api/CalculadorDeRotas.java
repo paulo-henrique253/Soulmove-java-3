@@ -41,8 +41,7 @@ public class CalculadorDeRotas {
             double lon = primeiroResultado.get("lon").asDouble();
             return new Coordenadas(lat, lon);
         }
-
-        return null;
+        throw new Exception("Endereço " + endereco+ " não encontrado");
     }
 
     // 2. Cálculo de Rota usando OSRM
