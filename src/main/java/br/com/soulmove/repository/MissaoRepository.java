@@ -96,7 +96,7 @@ public class MissaoRepository {
 
     public int excluir(Missao missao)
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException {
-        String sql = "DELETE * FROM tb_missao WHERE id = ?";
+        String sql = "DELETE * FROM tb_missao WHERE missao_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
                 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
@@ -181,4 +181,19 @@ public class MissaoRepository {
         }
     }
 
+    public void excluirDependencias(Missao missao) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
+        String sql = "DELETE FROM tb_usuario_missao WHERE missao_id = ?";
+        try (Connection con = new ConnectionFactory().getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)){
+            pstmt.setLong(1, missao.getId());
+            int registros = pstmt.executeUpdate();
+            if (registros == 0)
+                throw new UnableToFindEntityException("Erro ao excluir depencias da missao: entidade não encontrada", "TB_USUARIO_MISSAO");
+
+
+        }catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao excluir dependencias da missao");
+
+        }
+    }
 }

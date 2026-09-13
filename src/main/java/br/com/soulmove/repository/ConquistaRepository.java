@@ -96,7 +96,7 @@ public class ConquistaRepository {
 
     public int excluir(Conquista conquista)
             throws DatabaseException, ConstraintViolationException,TooLargeException, NullDataException ,UnableToFindEntityException {
-        String sql = "DELETE * FROM tb_conquista WHERE id = ?";
+        String sql = "DELETE FROM tb_conquista WHERE conquista_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
@@ -181,5 +181,29 @@ public class ConquistaRepository {
 
             OracleExceptionTranslator.translateException(e, "Erro ao completar conquista");
         }
+    }
+
+    public void excluirDependencias(Conquista conquista) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
+        String sql = "DELETE FROM tb_usuario_conquista WHERE conquista_id = ?";
+        String sql2 = "UPDATE tb_usuario SET titulo_atual = null WHERE titulo_atual = ?";
+        try (Connection con = new ConnectionFactory().getConnection();
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        PreparedStatement pstmt2 = con.prepareStatement(sql2)){
+            pstmt.setLong(1,conquista.getId());
+            pstmt2.setLong(1,conquista.getId());
+            int registros = pstmt.executeUpdate();
+            int registros2 = pstmt2.executeUpdate();
+
+            if(registros == 0 || registros2 == 0)
+                throw new UnableToFindEntityException("Erro ao excluir dependencias da conquista: entidade não encontrada", "TB");
+
+
+        }catch (SQLException e){
+            OracleExceptionTranslator.translateException(e, "Erro ao excluir dependencias da conquista");
+
+        }
+
+
+
     }
 }

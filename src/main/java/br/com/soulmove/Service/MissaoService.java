@@ -38,6 +38,7 @@ public class MissaoService {
     }
 
     public void excluir(Missao missao) throws UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+        rep.excluirDependencias(missao);
         rep.excluir(missao);
     }
 
