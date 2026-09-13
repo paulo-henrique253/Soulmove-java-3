@@ -108,7 +108,7 @@ public class SoulMove {
                         ⋮ ⌗ ┆ 1.  Cadastrar usuário.
                         ⋮ ⌗ ┆ 2.  Fazer login
                         ⋮ ⌗ ┆ 3.  Vizualizar perfil.
-                        ⋮ ⌗ ┆ 4.  Simular Missão.
+                        ⋮ ⌗ ┆ 4.  Simular viagem.
                         ⋮ ⌗ ┆ 5.  Ver histórico de viagens.
                         ⋮ ⌗ ┆ 6.  Verificar missões.
                         ⋮ ⌗ ┆ 7.  Completar missão.

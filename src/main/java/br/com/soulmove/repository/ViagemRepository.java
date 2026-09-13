@@ -16,7 +16,7 @@ import java.util.List;
 public class ViagemRepository {
     public Viagem registrar(String origem, String destino, Veiculo tipoVeiculo, double km_percorrido, double carbono_economizado, double carbono_emitido, UsuarioSoulMove usuario)
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException {
-        String sql = "INSERT INTO tb_viagem (origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuairo_id) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tb_viagem (origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuario_id) VALUES(?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql, new String[] {"VIAGEM_ID", "DATA_VIAGEM"})){
             pstmt.setString(1, origem);
