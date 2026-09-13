@@ -391,7 +391,7 @@ public class SoulMove {
                         usuarioService.resgatarPontos(usuarioAtual, quantidade);
                     }
                     catch (InvalidDataException e){
-                        System.out.println("ERRO! Você não possui pontos o bastante!");
+                        System.out.println("ERRO! " + e.getMessage());
                     }
                     catch (Exception e){
                         System.out.println(e.getMessage());

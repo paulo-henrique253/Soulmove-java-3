@@ -47,8 +47,10 @@ public class UsuarioService {
     }
 
     public void resgatarPontos(UsuarioSoulMove usuario, int quantidade) throws InvalidDataException, UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+        if (quantidade * taxaDeConversao < 10.0)
+            throw new InvalidDataException("A Quandidade minima de pontos a ser sacada é de R$10,00 em pontos (" +Math.ceil(10.0 /taxaDeConversao)+ " pontos)", "pontos");
         if(usuario.getPontos() < quantidade){
-            throw new InvalidDataException("Quantidade maior que o disponivel", "pontos");
+            throw new InvalidDataException("Quantidade inserida maior que a quantidade de pontos disponivel", "pontos");
         }
         CarteiraService carteiraService = new CarteiraService();
 
