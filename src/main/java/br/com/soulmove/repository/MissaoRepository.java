@@ -24,7 +24,7 @@ public class MissaoRepository {
 
             pstmt.setInt(1, pontos);
             pstmt.setString(2, nome);
-            pstmt.setString(3, tipo.name());
+            pstmt.setString(3, tipo.getTipo());
             pstmt.setString(4, descricao);
 
             pstmt.executeUpdate();

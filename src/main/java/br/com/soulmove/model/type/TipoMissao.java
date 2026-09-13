@@ -23,6 +23,7 @@ public enum TipoMissao {
                 return tm;
             }
         }
+
         throw new IllegalArgumentException();
     }
 }
