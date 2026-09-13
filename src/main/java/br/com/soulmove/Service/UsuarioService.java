@@ -41,6 +41,11 @@ public class UsuarioService {
 
     }
 
+    public void aumentarPontos(UsuarioSoulMove usuario, int pontos) throws UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+        rep.alterarPontos(usuario, usuario.getPontos() + pontos);
+        usuario.setPontos(usuario.getPontos() + pontos);
+    }
+
     public void resgatarPontos(UsuarioSoulMove usuario, int quantidade) throws InvalidDataException, UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
         if(usuario.getPontos() < quantidade){
             throw new InvalidDataException("Quantidade maior que o disponivel", "pontos");

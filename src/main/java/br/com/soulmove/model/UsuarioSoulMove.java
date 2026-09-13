@@ -3,7 +3,7 @@ package br.com.soulmove.model;
 import java.time.LocalDate;
 
 public class UsuarioSoulMove extends Usuario {
-    public int pontos;
+    private int pontos;
     private Conquista tituloAtual;
     private UsuarioHistorico historico;
 

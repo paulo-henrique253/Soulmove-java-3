@@ -20,8 +20,12 @@ public class ConquistaService {
         return rep.buscar(id);
     }
 
-    public void completarConquista(UsuarioSoulMove usuario, Conquista conquista) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+    public void completarConquista(UsuarioSoulMove usuario, Conquista conquista) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
         rep.completar(usuario, conquista);
+        usuario.setPontos(usuario.getPontos() + conquista.getPontos());
+
+        UsuarioService usuarioService = new UsuarioService();
+        usuarioService.aumentarPontos(usuario, conquista.getPontos());
     }
 
     public Conquista cadastrar(int pontos, String nome, String titulo, String descricao) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {

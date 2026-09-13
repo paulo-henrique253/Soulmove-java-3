@@ -26,8 +26,11 @@ public class MissaoService {
         rep.editar(id, missao);
     }
 
-    public void completarMissao(UsuarioSoulMove usuario, Missao missao) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+    public void completarMissao(UsuarioSoulMove usuario, Missao missao) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
         rep.completar(usuario, missao);
+        usuario.setPontos(usuario.getPontos());
+        UsuarioService usuarioService = new UsuarioService();
+        usuarioService.aumentarPontos(usuario, missao.getPontos());
     }
 
     public Missao cadastrar(int pontos, String nome, TipoMissao tipo, String descricao) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
