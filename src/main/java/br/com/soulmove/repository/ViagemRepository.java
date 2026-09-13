@@ -55,7 +55,7 @@ public class ViagemRepository {
 
     public List<Viagem> buscarHistorico(UsuarioSoulMove usuario)
         throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException{
-        String sql = "SELECT FROM tb_viagem viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuario_id WHERE usuario_id = ?";
+        String sql = "SELECT viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuario_id FROM tb_viagem WHERE usuario_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
             pstmt.setLong(1, usuario.getId());
