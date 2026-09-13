@@ -96,7 +96,7 @@ public class MissaoRepository {
 
     public int excluir(Missao missao)
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException {
-        String sql = "DELETE * FROM tb_missao WHERE missao_id = ?";
+        String sql = "DELETE FROM tb_missao WHERE missao_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
                 PreparedStatement pstmt = con.prepareStatement(sql)) {
 

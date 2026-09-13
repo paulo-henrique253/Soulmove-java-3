@@ -194,7 +194,7 @@ public class ConquistaRepository {
             int registros = pstmt.executeUpdate();
             int registros2 = pstmt2.executeUpdate();
 
-   
+
 
         }catch (SQLException e){
             OracleExceptionTranslator.translateException(e, "Erro ao excluir dependencias da conquista");

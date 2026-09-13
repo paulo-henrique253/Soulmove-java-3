@@ -129,7 +129,7 @@ public class UsuarioRepository {
 
     public int excluir(UsuarioSoulMove usuario)
             throws DatabaseException, UnableToFindEntityException, TooLargeException, NullDataException, ConstraintViolationException{
-        String sql = "DELETE * FROM tb_usuario WHERE id = ?";
+        String sql = "DELETE FROM tb_usuario WHERE id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
 
