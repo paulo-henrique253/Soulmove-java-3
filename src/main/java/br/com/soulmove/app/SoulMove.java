@@ -593,6 +593,7 @@ public class SoulMove {
 
                 case 0 -> {
                     System.out.println("\n" + "- - - Saindo do programa - - -" + "\n");
+                    continue;
 
 
                 }
@@ -605,8 +606,18 @@ public class SoulMove {
 
             }
 
-            System.out.println("Aperte ENTER para continuar");
-            leitura.next();
+            pausar();
+        }
+    }
+    public static void pausar() {
+        System.out.println("\nPressione ENTER para continuar...");
+
+        Scanner leitura = new Scanner(System.in);
+        // Se tem qualquer resíduo na linha atual do buffer (incluindo o \n anterior),
+        if (leitura.hasNextLine()) {
+            // Consome o que sobrou da linha atual, se houver
+            String resto = leitura.nextLine();
+            
         }
     }
 }
