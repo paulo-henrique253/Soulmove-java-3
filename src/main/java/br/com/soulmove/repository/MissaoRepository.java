@@ -117,7 +117,7 @@ public class MissaoRepository {
 
     public int editar(long id, Missao missao)
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException {
-        String sql = "UPDATE tb_missao SET pontos_missao = ?, titulo = ?, descricao = ?, tipo_missao = ? WHERE id = ?";
+        String sql = "UPDATE tb_missao SET pontos_missao = ?, titulo = ?, descricao = ?, tipo_missao = ? WHERE missao_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
 
