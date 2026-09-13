@@ -114,8 +114,16 @@ public class SoulMove {
                         ⋮ ⌗ ┆ 7.  Completar missão.
                         ⋮ ⌗ ┆ 8.  Verificar conquistas.
                         ⋮ ⌗ ┆ 9.  Completar conquista
-                        ⋮ ⌗ ┆ 10. Adicionar itulo ao perfil
+                        ⋮ ⌗ ┆ 10. Adicionar titulo ao perfil
                         ⋮ ⌗ ┆ 11. Converter Pontos
+                        
+                        ⋮ ⌗ ┆ 12. Cadastrar missao
+                        ⋮ ⌗ ┆ 13. Editar missao
+                        ⋮ ⌗ ┆ 14. Excluir missao
+                        
+                        ⋮ ⌗ ┆ 15. Cadastrar conquista
+                        ⋮ ⌗ ┆ 16. Editar conquista
+                        ⋮ ⌗ ┆ 17. Excluir conquista
                         ⋮ ⌗ ┆ 0.  SAIR DO PROGRAMA.
                     """);
 
@@ -411,7 +419,7 @@ public class SoulMove {
                             System.out.println("\nInsira um tipo para a missao:");
                             try {
                                 tipo = leitura.nextLine();
-                                TipoMissao.valueOf(tipo);
+                                TipoMissao.getTipoMissao(tipo);
                             } catch (IllegalArgumentException e){
                                 tipo = "ERRO";
                                 System.out.println("Valor inválido");
@@ -422,7 +430,7 @@ public class SoulMove {
                         String descricao = leitura.nextLine();
 
 
-                        missaoService.cadastrar(pontos, nome, TipoMissao.valueOf(tipo), descricao);
+                        missaoService.cadastrar(pontos, nome, TipoMissao.getTipoMissao(tipo), descricao);
                     }catch (TooLargeException e) {
                         System.out.println("O campo \"" + e.getColumnName().toLowerCase() +"\" não pode ser tão grande!");
                     } catch (Exception e) {
@@ -456,7 +464,7 @@ public class SoulMove {
                             System.out.println("\nInsira um tipo para a missao:");
                             try {
                                 tipo = leitura.nextLine();
-                                TipoMissao.valueOf(tipo);
+                                TipoMissao.getTipoMissao(tipo);
                             } catch (IllegalArgumentException e){
                                 tipo = "ERRO";
                                 System.out.println("Valor inválido");
@@ -467,7 +475,7 @@ public class SoulMove {
                         String descricao = leitura.nextLine();
 
 
-                        missaoService.editar(id, new Missao(id, nome, TipoMissao.valueOf(tipo), descricao, pontos));
+                        missaoService.editar(id, new Missao(id, nome, TipoMissao.getTipoMissao(tipo), descricao, pontos));
                     } catch (UnableToFindEntityException e){
                         if (e.getTableName().equalsIgnoreCase("TB_MISSAO"))
                             System.out.println("Id inválido");
