@@ -164,4 +164,5 @@ public class UsuarioRepository {
             OracleExceptionTranslator.translateException(e, "Erro ao alterar pontos");
         }
     }
+
 }

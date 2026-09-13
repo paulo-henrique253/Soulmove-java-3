@@ -34,6 +34,7 @@ public class ConquistaService {
     public void excluir(Conquista conquista) throws UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
         rep.excluirDependencias(conquista);
         rep.excluir(conquista);
+
     }
 
     public void editar(long id, Conquista conquista) throws UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {

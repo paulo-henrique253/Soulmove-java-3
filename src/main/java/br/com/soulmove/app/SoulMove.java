@@ -579,8 +579,10 @@ public class SoulMove {
                         System.out.println(conquista + "\n--------------------\n");
                         System.out.println("Confirmar exclusão(s/n): ");
                         String resp = leitura.next() + leitura.nextLine();
-                        if (resp.equalsIgnoreCase("s"))
+                        if (resp.equalsIgnoreCase("s")){
                             conquistaService.excluir(conquista);
+                            usuarioService.atualizar(usuarioAtual);
+                        }
                         else System.out.println("Exclusão cancelada");
 
 

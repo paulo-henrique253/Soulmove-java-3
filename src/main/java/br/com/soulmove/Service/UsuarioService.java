@@ -66,5 +66,9 @@ public class UsuarioService {
     }
 
 
+    public void atualizar(UsuarioSoulMove usuario) throws UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+        usuario = rep.buscar(usuario.getId());
+    }
+
 
 }
