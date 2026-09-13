@@ -22,7 +22,7 @@ public class ViagemRepository {
             pstmt.setString(1, origem);
             pstmt.setString(2, destino);
             pstmt.setString(3,tipoVeiculo.getVeiculo());
-            pstmt.setDouble(4, OracleErrorParser.adjustPrecision(km_percorrido, 3));
+            pstmt.setDouble(4, OracleErrorParser.adjustPrecision(km_percorrido, 2));
             pstmt.setDouble(5, OracleErrorParser.adjustPrecision(carbono_economizado, 2));
             pstmt.setDouble(6, OracleErrorParser.adjustPrecision(carbono_emitido, 2));
             pstmt.setLong(7, usuario.getId());
@@ -55,7 +55,7 @@ public class ViagemRepository {
 
     public List<Viagem> buscarHistorico(UsuarioSoulMove usuario)
         throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException{
-        String sql = "SELECT FROM tb_viagem viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuairo_id WHERE usuario_id = ?";
+        String sql = "SELECT FROM tb_viagem viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuario_id WHERE usuario_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
             pstmt.setLong(1, usuario.getId());
@@ -78,7 +78,7 @@ public class ViagemRepository {
             }
 
         }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao registrar viagem");
+            OracleExceptionTranslator.translateException(e, "Erro ao Obter histórico de viagem");
         }
 
         return null;
@@ -86,7 +86,7 @@ public class ViagemRepository {
 
     public Viagem buscar(long id)
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException{
-        String sql = "SELECT FROM tb_viagem viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuairo_id WHERE viagem_id = ?";
+        String sql = "SELECT FROM tb_viagem viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuario_id WHERE viagem_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
             pstmt.setLong(1, id);
