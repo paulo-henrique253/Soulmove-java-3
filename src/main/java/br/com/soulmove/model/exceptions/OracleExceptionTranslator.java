@@ -15,7 +15,6 @@ public final class OracleExceptionTranslator {
             throws ConstraintViolationException, DatabaseException, NullDataException, TooLargeException {
 
         int errorCode = e.getErrorCode();
-        e.printStackTrace();
         switch (errorCode) {
             case 1: // ORA-00001: Unique Constraint
                 String constraintUnique = OracleErrorParser.extrairNomeConstraint(e.getMessage());

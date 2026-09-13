@@ -5,7 +5,6 @@ import java.time.LocalDate;
 public class UsuarioSoulMove extends Usuario {
     private int pontos;
     private Conquista tituloAtual;
-    private UsuarioHistorico historico;
 
     public UsuarioSoulMove() {
         super();
