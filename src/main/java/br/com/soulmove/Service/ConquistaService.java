@@ -22,7 +22,6 @@ public class ConquistaService {
 
     public void completarConquista(UsuarioSoulMove usuario, Conquista conquista) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
         rep.completar(usuario, conquista);
-        usuario.setPontos(usuario.getPontos() + conquista.getPontos());
 
         UsuarioService usuarioService = new UsuarioService();
         usuarioService.aumentarPontos(usuario, conquista.getPontos());

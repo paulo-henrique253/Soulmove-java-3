@@ -28,7 +28,7 @@ public class MissaoService {
 
     public void completarMissao(UsuarioSoulMove usuario, Missao missao) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
         rep.completar(usuario, missao);
-        usuario.setPontos(usuario.getPontos());
+
         UsuarioService usuarioService = new UsuarioService();
         usuarioService.aumentarPontos(usuario, missao.getPontos());
     }

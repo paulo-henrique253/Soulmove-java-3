@@ -178,6 +178,7 @@ public class ConquistaRepository {
 
 
         } catch (SQLException e){
+
             OracleExceptionTranslator.translateException(e, "Erro ao completar conquista");
         }
     }
