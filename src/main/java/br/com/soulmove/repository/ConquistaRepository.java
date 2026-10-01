@@ -42,19 +42,14 @@ public class ConquistaRepository {
 
     public Conquista buscar(long id)
         throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException {
-        String sql = "SELECT pontos, nome, titulo, descricao FROM tb_conquista WHERE conquista_id = ?";
+        String sql = "SELECT conquista_id, pontos, nome, titulo, descricao FROM tb_conquista WHERE conquista_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)){
 
             pstmt.setLong(1, id);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()){
-                int pontos = rs.getInt("pontos");
-                String nome = rs.getString("nome");
-                String titulo = rs.getString("titulo");
-                String descricao = rs.getString("descricao");
-
-                return new Conquista(id, nome, descricao, pontos, titulo);
+                return getConquista(rs);
 
             }
             throw new UnableToFindEntityException("Conquista não encontrada", "TB_CONQUISTA");
@@ -66,6 +61,16 @@ public class ConquistaRepository {
 
     }
 
+    private static Conquista getConquista(ResultSet rs) throws SQLException {
+        long id = rs.getBigDecimal("conquista_id").longValue();
+        int pontos = rs.getInt("pontos");
+        String nome = rs.getString("nome");
+        String titulo = rs.getString("titulo");
+        String descricao = rs.getString("descricao");
+
+        return new Conquista(id, nome, descricao, pontos, titulo);
+    }
+
     public List<Conquista> buscarTodas()
             throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException {
         String sql = "SELECT conquista_id, pontos, nome, titulo, descricao FROM tb_conquista";
@@ -75,14 +80,7 @@ public class ConquistaRepository {
 
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()){
-                long id = rs.getBigDecimal("conquista_id").longValue();
-                int pontos = rs.getInt("pontos");
-                String nome = rs.getString("nome");
-                String titulo = rs.getString("titulo");
-                String descricao = rs.getString("descricao");
-
-                Conquista conquista = new Conquista(id, nome, descricao, pontos, titulo);
-                conquistas.add(conquista);
+                conquistas.add(getConquista(rs));
             }
 
 
@@ -148,14 +146,7 @@ public class ConquistaRepository {
 
             List<Conquista> conquistas = new ArrayList<>();
             while (rs.next()) {
-                long id = rs.getBigDecimal("conquista_id").longValue();
-                int pontos = rs.getInt("pontos");
-                String titulo = rs.getString("titulo");
-                String nome = rs.getString("nome");
-                String descricao = rs.getString("descricao");
-
-                Conquista missao = new Conquista(id, nome,descricao, pontos, titulo);
-                conquistas.add(missao);
+                conquistas.add(getConquista(rs));
             }
             return conquistas;
         } catch (SQLException e){

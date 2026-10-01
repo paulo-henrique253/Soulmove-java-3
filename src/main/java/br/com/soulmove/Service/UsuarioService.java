@@ -28,8 +28,12 @@ public class UsuarioService {
 
         UsuarioSoulMove usuario = rep.buscar(email);
 
-        if(usuario.isSenha(senha))
+        if(usuario.isSenha(senha)){
+            usuario.setConquistasConcluidas(new ConquistaService().buscarConcluidas(usuario));
+            usuario.setMissoesConcluidas(new MissaoService().buscarConcluidas(usuario));
             return usuario;
+        }
+
         return null;
     }
 

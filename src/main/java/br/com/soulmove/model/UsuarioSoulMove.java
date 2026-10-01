@@ -1,10 +1,14 @@
 package br.com.soulmove.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsuarioSoulMove extends Usuario {
     private int pontos;
     private Conquista tituloAtual;
+    private List<Missao> missoesConcluidas = new ArrayList<>();
+    private List<Conquista> conquistasConcluidas = new ArrayList<>();
 
     public UsuarioSoulMove() {
         super();
@@ -29,6 +33,22 @@ public class UsuarioSoulMove extends Usuario {
 
     public void setTituloAtual(Conquista tituloAtual) {
         this.tituloAtual = tituloAtual;
+    }
+
+    public List<Missao> getMissoesConcluidas() {
+        return missoesConcluidas;
+    }
+
+    public void setMissoesConcluidas(List<Missao> missoesConcluidas) {
+        this.missoesConcluidas = missoesConcluidas;
+    }
+
+    public List<Conquista> getConquistasConcluidas() {
+        return conquistasConcluidas;
+    }
+
+    public void setConquistasConcluidas(List<Conquista> conquistasConcluidas) {
+        this.conquistasConcluidas = conquistasConcluidas;
     }
 
     @Override

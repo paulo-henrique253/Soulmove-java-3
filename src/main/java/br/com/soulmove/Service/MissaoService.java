@@ -31,6 +31,8 @@ public class MissaoService {
 
         UsuarioService usuarioService = new UsuarioService();
         usuarioService.aumentarPontos(usuario, missao.getPontos());
+
+
     }
 
     public Missao cadastrar(int pontos, String nome, TipoMissao tipo, String descricao) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
