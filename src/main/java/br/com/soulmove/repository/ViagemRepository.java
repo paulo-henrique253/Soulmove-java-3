@@ -5,52 +5,70 @@ import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.Viagem;
 import br.com.soulmove.model.exceptions.*;
 import br.com.soulmove.model.type.Veiculo;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+@Repository
 public class ViagemRepository {
-    public Viagem registrar(String origem, String destino, Veiculo tipoVeiculo, double km_percorrido, double carbono_economizado, double carbono_emitido, UsuarioSoulMove usuario)
-            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException {
+    private final JdbcTemplate jdbcTemplate;
+
+    public ViagemRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    private final RowMapper<Viagem> viagemMapper = (rs, rowNum) ->{
+        Viagem v = new Viagem();
+        v.setId(rs.getLong("viagem_id"));
+        v.setOrigem(rs.getString("origem"));
+        v.setDestino(rs.getString("destino"));
+        v.setTipoVeiculo(Veiculo.getTipoVeiculo(rs.getString("tipo_veiculo")));
+        v.setKmPercorrido(rs.getDouble("km_percorrido"));
+        v.setCarbonoEconomizado(rs.getDouble("carbono_economizado"));
+        v.setCarbonoEmitido(rs.getDouble("carbono_emitido"));
+        v.setData(rs.getDate("data_viagem").toLocalDate());
+        return v;
+    }
+
+    public Viagem registrar(String origem, String destino, Veiculo tipoVeiculo, double kmPercorrido, double carbonoEconomizado, double carbonoEmitido, long usuarioId){
         String sql = "INSERT INTO tb_viagem (origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuario_id) VALUES(?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql, new String[] {"VIAGEM_ID", "DATA_VIAGEM"})){
-            pstmt.setString(1, origem);
-            pstmt.setString(2, destino);
-            pstmt.setString(3,tipoVeiculo.getVeiculo());
-            pstmt.setDouble(4, OracleErrorParser.adjustPrecision(km_percorrido, 2));
-            pstmt.setDouble(5, OracleErrorParser.adjustPrecision(carbono_economizado, 2));
-            pstmt.setDouble(6, OracleErrorParser.adjustPrecision(carbono_emitido, 2));
-            pstmt.setLong(7, usuario.getId());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con ->{
+            PreparedStatement ps = con.prepareStatement(sql, new String[] {"VIAGEM_ID", "DATA_VIAGEM"});
+            ps.setString(1, origem);
+            ps.setString(2, destino);
+            ps.setString(3,tipoVeiculo.getVeiculo());
+            ps.setDouble(4, OracleErrorParser.adjustPrecision(kmPercorrido, 2));
+            ps.setDouble(5, OracleErrorParser.adjustPrecision(carbonoEconomizado, 2));
+            ps.setDouble(6, OracleErrorParser.adjustPrecision(carbonoEmitido, 2));
+            ps.setLong(7, usuarioId);
+            return ps;
+        });
 
-            pstmt.executeUpdate();
-
-            ResultSet rs = pstmt.getGeneratedKeys();
-
-            if (rs.next()){
-                Viagem viagem = new Viagem();
-
-                viagem.setData(rs.getDate(2).toLocalDate());
-                viagem.setId(rs.getBigDecimal(1).longValue());
-                viagem.setOrigem(origem);
-                viagem.setDestino(destino);
-                viagem.setCarbonoEmitido(carbono_emitido);
-                viagem.setKmPercorrido(km_percorrido);
-                viagem.setUsuario(usuario);
-
-                return viagem;
-            }
-
-        }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao registrar viagem");
+        Map<String, Object> chaves = keyHolder.getKeys();
+        if (chaves != null && !chaves.isEmpty()){
+            Viagem v = new Viagem();
+            long id = ((Number) chaves.get("VIAGEM_ID")).longValue();
+            v.setId(id);
+            v.setOrigem(origem);
+            v.setDestino(destino);
+            v.setTipoVeiculo(tipoVeiculo);
+            v.setKmPercorrido(kmPercorrido);
+            v.setCarbonoEconomizado(carbonoEconomizado);
+            v.setCarbonoEmitido(carbonoEconomizado);
+            LocalDate data = ((Date) chaves.get("DATA_VIAGEM")).toLocalDate();
+            v.setData(data);
+            return v;
         }
-
-        return null;
-
+        throw new RuntimeException("Impossivel gerar as chaves de Viagem");
     }
 
     public List<Viagem> buscarHistorico(UsuarioSoulMove usuario)
