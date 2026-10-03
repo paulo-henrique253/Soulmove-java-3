@@ -5,6 +5,8 @@ import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.exceptions.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,71 +20,33 @@ public class CarteiraRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public final RowMapper<CarteiraUsuario> rowMapper = (rs, rowNum) ->{
+    public final RowMapper<CarteiraUsuario> carteiraMapper = (rs, rowNum) ->{
         long id = rs.getLong("carteira_id");
+        double saldo = rs.getDouble("saldo");
+        return new CarteiraUsuario(id, saldo);
+    };
 
-        CarteiraUsuario c = new CarteiraUsuario(id, usuario, saldo);
-    }
-
-    public CarteiraUsuario cadastrar(UsuarioSoulMove usuario)
-            throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
+    public CarteiraUsuario cadastrar(UsuarioSoulMove usuario){
         String sql = "INSERT INTO tb_carteira (usuario_id, saldo_mobilidade) VALUES (?, ?)";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql, new String[] {"CARTEIRA_ID"})){
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(sql, new String[]{"carteira_id"});
+            ps.setLong(1, usuario.getId());
+            ps.setDouble(2, 0.0);
+            return ps;
+        }, keyHolder);
 
-            pstmt.setLong(1, usuario.getId());
-            pstmt.setDouble(2, 0.0);
-
-            pstmt.executeUpdate();
-            ResultSet rs = pstmt.getGeneratedKeys();
-            long id = 0;
-
-            if (rs.next()){
-                id = rs.getBigDecimal(1).longValue();
-            }
-
-            return new CarteiraUsuario(id, usuario, 0.0);
-
-        }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao cadastrar carteira");
-            return null;
-        }
+        long id = keyHolder.getKey().longValue();
+        return new CarteiraUsuario(id, 0.0);
     }
 
-    public CarteiraUsuario buscar(long usuarioId)
-            throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
+    public CarteiraUsuario buscar(long usuarioId){
         String sql = "SELECT carteira_id, saldo_mobilidade FROM tb_carteira WHERE usuario_id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-            pstmt.setLong(1, usuario.getId());
-
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()){
-                long id = rs.getBigDecimal("carteira_id").longValue();
-                double saldo = rs.getDouble("saldo_mobilidade");
-                return new CarteiraUsuario(id, usuario, saldo);
-            } else throw new UnableToFindEntityException("Erro ao buscar carteira: entidade não encontrada", "TB_CARTEIRA");
-
-        } catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao buscar carteira");
-            return null;
-        }
+        return jdbcTemplate.queryForObject(sql, carteiraMapper, usuarioId);
     }
 
-    public void alterarSaldo(CarteiraUsuario carteira, double saldo)
-            throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
+    public void alterarSaldo(CarteiraUsuario carteira, double saldo){
         String sql = "UPDATE tb_carteira SET saldo_mobilidade = ? WHERE carteira_id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-
-            pstmt.setDouble(1, saldo);
-            pstmt.setLong(2, carteira.getId());
-
-            int registros = pstmt.executeUpdate();
-            if (registros == 0)
-                throw new UnableToFindEntityException("Erro ao alterar saldo: entidade não encontrada", "TB_CARTEIRA");
-        } catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao alterar saldo");
-        }
+        jdbcTemplate.update(sql, OracleErrorParser.adjustPrecision(saldo, 2), carteira.getId());
     }
 }

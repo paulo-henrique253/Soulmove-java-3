@@ -7,6 +7,7 @@ import java.util.List;
 public class UsuarioSoulMove extends Usuario {
     private int pontos;
     private Conquista tituloAtual;
+    private CarteiraUsuario carteira;
     private List<Missao> missoesConcluidas = new ArrayList<>();
     private List<Conquista> conquistasConcluidas = new ArrayList<>();
 
@@ -45,6 +46,12 @@ public class UsuarioSoulMove extends Usuario {
 
     public List<Conquista> getConquistasConcluidas() {
         return conquistasConcluidas;
+    }
+
+    public CarteiraUsuario getCarteira(){ return  this.carteira;}
+
+    public void setCarteira(CarteiraUsuario carteira) {
+        this.carteira = carteira;
     }
 
     public void setConquistasConcluidas(List<Conquista> conquistasConcluidas) {
