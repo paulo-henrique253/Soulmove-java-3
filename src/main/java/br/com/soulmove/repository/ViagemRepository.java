@@ -5,6 +5,7 @@ import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.Viagem;
 import br.com.soulmove.model.exceptions.*;
 import br.com.soulmove.model.type.Veiculo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class ViagemRepository {
     private final JdbcTemplate jdbcTemplate;
 
+    @Autowired
     public ViagemRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }

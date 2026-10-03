@@ -4,6 +4,7 @@ import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.exceptions.*;
 import br.com.soulmove.model.type.TipoMissao;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -32,6 +33,7 @@ public class ConquistaRepository {
         return c;
     };
 
+    @Autowired
     public ConquistaRepository(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate = jdbcTemplate;
     }
