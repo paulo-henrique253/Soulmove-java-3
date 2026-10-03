@@ -35,10 +35,22 @@ public class ViagemRepository {
         v.setCarbonoEconomizado(rs.getDouble("carbono_economizado"));
         v.setCarbonoEmitido(rs.getDouble("carbono_emitido"));
         v.setData(rs.getDate("data_viagem").toLocalDate());
-        return v;
-    }
 
-    public Viagem registrar(String origem, String destino, Veiculo tipoVeiculo, double kmPercorrido, double carbonoEconomizado, double carbonoEmitido, long usuarioId){
+        //usuario
+        long usuarioId = rs.getLong("usuario_id");
+        String usuarioNome = rs.getString("usuario_nome");
+        String usuarioEmail = rs.getString("usuario_email");
+        LocalDate usuarioDataCadastro = rs.getDate("usuario_data_cadastro").toLocalDate();
+        String usuarioSenha = rs.getString("usuario_senha");
+        int usuarioPontos = rs.getInt("usuario_pontos");
+        UsuarioSoulMove u = new UsuarioSoulMove(usuarioId, usuarioNome, usuarioPontos , usuarioEmail, usuarioDataCadastro, usuarioSenha);
+
+        v.setUsuario(u);
+
+        return v;
+    };
+
+    public Viagem registrar(String origem, String destino, Veiculo tipoVeiculo, double kmPercorrido, double carbonoEconomizado, double carbonoEmitido, UsuarioSoulMove usuario){
         String sql = "INSERT INTO tb_viagem (origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuario_id) VALUES(?, ?, ?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con ->{
@@ -49,7 +61,7 @@ public class ViagemRepository {
             ps.setDouble(4, OracleErrorParser.adjustPrecision(kmPercorrido, 2));
             ps.setDouble(5, OracleErrorParser.adjustPrecision(carbonoEconomizado, 2));
             ps.setDouble(6, OracleErrorParser.adjustPrecision(carbonoEmitido, 2));
-            ps.setLong(7, usuarioId);
+            ps.setLong(7, usuario.getId());
             return ps;
         });
 
@@ -66,74 +78,34 @@ public class ViagemRepository {
             v.setCarbonoEmitido(carbonoEconomizado);
             LocalDate data = ((Date) chaves.get("DATA_VIAGEM")).toLocalDate();
             v.setData(data);
+            v.setUsuario(usuario);
             return v;
         }
         throw new RuntimeException("Impossivel gerar as chaves de Viagem");
     }
 
-    public List<Viagem> buscarHistorico(UsuarioSoulMove usuario)
-        throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException{
-        String sql = "SELECT viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuario_id FROM tb_viagem WHERE usuario_id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-            pstmt.setLong(1, usuario.getId());
-
-            ResultSet rs = pstmt.executeQuery();
-
-            List<Viagem> viagens = new ArrayList<>();
-            while (rs.next()){
-                Viagem viagem = new Viagem();
-
-                viagem.setData(rs.getDate("data_viagem").toLocalDate());
-                viagem.setId(rs.getBigDecimal("viagem_id").longValue());
-                viagem.setOrigem(rs.getString("origem"));
-                viagem.setDestino(rs.getString("destino"));
-                viagem.setCarbonoEmitido(rs.getDouble("carbono_emitido"));
-                viagem.setKmPercorrido(rs.getDouble("km_percorrido"));
-                viagem.setUsuario(new UsuarioRepository().buscar(rs.getBigDecimal("usuario_id").longValue()));
-                viagem.setTipoVeiculo(Veiculo.getTipoVeiculo(rs.getString("tipo_veiculo")));
-                viagem.setCarbonoEconomizado(rs.getDouble("carbono_economizado"));
-                viagens.add(viagem);
-            }
-            return viagens;
-
-        }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao Obter histórico de viagem");
-        }
-
-        return null;
+    public List<Viagem> buscarHistorico(long usuarioId){
+        String sql = """
+            SELECT 
+            v.viagem_id, v.data_viagem, v.origem, v.destino, v.tipo_veiculo, v.km_percorrido, v.carbono_economizado, v.carbono_emitido 
+            u.usuaroi_id, u.nome AS usuario_nome, u.pontos AS usuario_pontos, u.email AS usuario_email, u.data_cadastro AS usuario_data_cadastro, u.senha AS usuario_senha
+            FROM tb_viagem v
+            INNER JOIN tb_usuario u ON v.usuario_id = u.usuario_id
+            WHERE v.usuario_id = ?
+        """;
+        return jdbcTemplate.query(sql, viagemMapper, usuarioId);
     }
 
-    public Viagem buscar(long id)
-            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException{
-        String sql = "SELECT FROM tb_viagem viagem_id, data_viagem, origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuario_id WHERE viagem_id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-            pstmt.setLong(1, id);
-
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()){
-
-                Viagem viagem = new Viagem();
-                viagem.setData(rs.getDate("data_viagem").toLocalDate());
-                viagem.setId(rs.getBigDecimal("viagem_id").longValue());
-                viagem.setOrigem(rs.getString("origem"));
-                viagem.setDestino(rs.getString("destino"));
-                viagem.setCarbonoEmitido(rs.getDouble("carbono_emitido"));
-                viagem.setKmPercorrido(rs.getDouble("km_percorrido"));
-                viagem.setUsuario(new UsuarioRepository().buscar(rs.getBigDecimal("usuario_id").longValue()));
-
-                return viagem;
-            }
-            else{
-                throw new UnableToFindEntityException("Erro ao buscar viagem: entidade não encontrada", "TB_VIAGEM");
-            }
-        }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao registrar viagem");
-        }
-
-        return null;
+    public Viagem buscar(long id){
+        String sql = """
+            SELECT 
+            v.viagem_id, v.data_viagem, v.origem, v.destino, v.tipo_veiculo, v.km_percorrido, v.carbono_economizado, v.carbono_emitido 
+            u.usuaroi_id, u.nome AS usuario_nome, u.pontos AS usuario_pontos, u.email AS usuario_email, u.data_cadastro AS usuario_data_cadastro, u.senha AS usuario_senha
+            FROM tb_viagem v
+            INNER JOIN tb_usuario u ON v.usuario_id = u.usuario_id
+            WHERE v.viagem_id = ?
+        """;
+        return jdbcTemplate.queryForObject(sql, viagemMapper, id);
     }
 
 }
