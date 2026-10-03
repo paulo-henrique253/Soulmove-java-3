@@ -3,6 +3,8 @@ package br.com.soulmove.repository;
 import br.com.soulmove.model.CarteiraUsuario;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.exceptions.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,6 +12,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class CarteiraRepository {
+    private final JdbcTemplate jdbcTemplate;
+
+    public CarteiraRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public final RowMapper<CarteiraUsuario> rowMapper = (rs, rowNum) ->{
+        long id = rs.getLong("carteira_id");
+
+        CarteiraUsuario c = new CarteiraUsuario(id, usuario, saldo);
+    }
 
     public CarteiraUsuario cadastrar(UsuarioSoulMove usuario)
             throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
@@ -36,7 +49,7 @@ public class CarteiraRepository {
         }
     }
 
-    public CarteiraUsuario buscar(UsuarioSoulMove usuario)
+    public CarteiraUsuario buscar(long usuarioId)
             throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
         String sql = "SELECT carteira_id, saldo_mobilidade FROM tb_carteira WHERE usuario_id = ?";
         try (Connection con = new ConnectionFactory().getConnection();
