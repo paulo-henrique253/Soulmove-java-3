@@ -4,6 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.0</version> <!-- Versão compatível com JDK 21 -->
+        <relativePath/>
+    </parent>
+
     <groupId>org.example</groupId>
     <artifactId>SoulmoveJava</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -16,10 +23,15 @@
 
     <dependencies>
 
+        <!-- Suporte base do Spring Boot -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.17.0</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
 
         <dependency>
@@ -27,5 +39,12 @@
             <artifactId>ojdbc11</artifactId>
             <version>23.5.0.24.07</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.22.3</version>
+        </dependency>
+
     </dependencies>
 </project>
