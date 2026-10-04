@@ -87,7 +87,7 @@ public class UsuarioRepository {
     public UsuarioSoulMove buscar(long id){
         String sql = """
             SELECT 
-                u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, u.pontos, u.titulo_atual 
+                u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, u.pontos, u.titulo_atual,
                 c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos
             FROM tb_usuario u
             LEFT JOIN tb_conquista c ON u.titulo_atual = c.conquista_id
@@ -99,7 +99,7 @@ public class UsuarioRepository {
     public UsuarioSoulMove buscar(String email){
         String sql = """
             SELECT 
-                u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, u.pontos, u.titulo_atual 
+                u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, u.pontos, u.titulo_atual,
                 c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos
             FROM tb_usuario u
             LEFT JOIN tb_conquista c ON u.titulo_atual = c.conquista_id

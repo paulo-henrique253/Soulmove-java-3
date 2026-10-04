@@ -78,8 +78,7 @@ public class MissaoRepository {
         return jdbcTemplate.update(sql, id);
     }
 
-    public int editar(long id, int pontos, String titulo, String descricao, TipoMissao tipo)
-            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException {
+    public int editar(long id, int pontos, String titulo, String descricao, TipoMissao tipo) {
         String sql = "UPDATE tb_missao SET pontos_missao = ?, titulo = ?, descricao = ?, tipo_missao = ? WHERE missao_id = ?";
         return jdbcTemplate.update(sql, pontos, titulo, descricao, tipo.getTipo(), id);
     }
@@ -96,7 +95,7 @@ public class MissaoRepository {
         jdbcTemplate.update(sql, StatusMissao.CONCLUIDA.getStatus(), missao.getPontos(), usuario.getId(), missao.getId());
     }
 
-    public int excluirDependencias(long id) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
+    public int excluirDependencias(long id){
         String sql = "DELETE FROM tb_usuario_missao WHERE missao_id = ?";
         return jdbcTemplate.update(sql, id);
     }

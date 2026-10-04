@@ -86,11 +86,11 @@ public class ConquistaRepository {
         jdbcTemplate.update(sql, usuario.getId(), conquista.getId());
     }
 
-    public void excluirDependencias(Conquista conquista) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
+    public void excluirDependencias(long conquistaId){
         String sql = "DELETE FROM tb_usuario_conquista WHERE conquista_id = ?";
         String sql2 = "UPDATE tb_usuario SET titulo_atual = null WHERE titulo_atual = ?";
 
-        jdbcTemplate.update(sql, conquista.getId());
-        jdbcTemplate.update(sql2, conquista.getId());
+        jdbcTemplate.update(sql, conquistaId);
+        jdbcTemplate.update(sql2, conquistaId);
     }
 }

@@ -69,4 +69,12 @@ public class UsuarioSoulMove extends Usuario {
                 "\ntituloAtual: " + t
                 ;
     }
+
+    public void adicionarMissaoConcluida(Missao missao) {
+        missoesConcluidas.add(missao);
+    }
+
+    public void adicionarConquistaConcluida(Conquista conquista) {
+        conquistasConcluidas.add(conquista);
+    }
 }
