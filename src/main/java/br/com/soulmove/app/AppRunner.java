@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Scanner;
 
-@Component
 public class AppRunner implements CommandLineRunner {
 
     private final UsuarioService usuarioService;

@@ -21,6 +21,13 @@ public class Missao {
         this.pontos = pontos;
     }
 
+    public Missao(String titulo, TipoMissao tipo, String descricao, int pontos) {
+        this.titulo = titulo;
+        this.tipo = tipo;
+        this.descricao = descricao;
+        this.pontos = pontos;
+    }
+
     public long getId() {
         return id;
     }
