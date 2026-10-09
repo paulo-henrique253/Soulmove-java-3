@@ -4,6 +4,12 @@ import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.exceptions.*;
 import br.com.soulmove.model.type.TipoMissao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,186 +19,78 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+@Repository
 public class ConquistaRepository {
+    private final JdbcTemplate jdbcTemplate;
 
-    public Conquista cadastrar(int pontos, String nome, String titulo, String descricao)
-            throws DatabaseException, ConstraintViolationException, TooLargeException, NullDataException{
+    private final RowMapper<Conquista> conquistaMapper = (rs, rowNum) ->{
+        Conquista c = new Conquista();
+        c.setId(rs.getLong("conquista_id"));
+        c.setNome(rs.getString(rs.getString("nome")));
+        c.setPontos(rs.getInt("pontos"));
+        c.setTitulo(rs.getString("titulo"));
+        c.setDescricao(rs.getString("descricao"));
+        return c;
+    };
+
+    @Autowired
+    public ConquistaRepository(JdbcTemplate jdbcTemplate){
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public long cadastrar(int pontos, String nome, String titulo, String descricao){
         String sql = "INSERT INTO tb_conquista (pontos, nome, titulo, descricao) VALUES (?, ?, ?, ?)";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql, new String[] {"CONQUISTA_ID"})){
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(sql, new String[]{"conquista_id"});
+            ps.setInt(1, pontos);
+            ps.setString(2, nome);
+            ps.setString(3, titulo);
+            ps.setString(4, descricao);
+            return ps;
+        }, keyHolder);
+        return keyHolder.getKey().longValue();
 
-            pstmt.setInt(1, pontos);
-            pstmt.setString(2, nome);
-            pstmt.setString(3, titulo);
-            pstmt.setString(4, descricao);
 
-            pstmt.executeUpdate();
-            ResultSet rs = pstmt.getGeneratedKeys();
-            if (rs.next()){
-                long id = rs.getBigDecimal(1).longValue();
-                return new Conquista(id, nome, descricao, pontos, titulo);
-            }
-
-            return null;
-        }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao cadastrar missão");
-            return null;
-        }
     }
 
-    public Conquista buscar(long id)
-        throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException, UnableToFindEntityException {
+    public Conquista buscar(long id){
         String sql = "SELECT conquista_id, pontos, nome, titulo, descricao FROM tb_conquista WHERE conquista_id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-
-            pstmt.setLong(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()){
-                return getConquista(rs);
-
-            }
-            throw new UnableToFindEntityException("Conquista não encontrada", "TB_CONQUISTA");
-
-        }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao buscar conquista");
-            return null;
-        }
+        return jdbcTemplate.queryForObject(sql, conquistaMapper, id);
 
     }
 
-    private static Conquista getConquista(ResultSet rs) throws SQLException {
-        long id = rs.getBigDecimal("conquista_id").longValue();
-        int pontos = rs.getInt("pontos");
-        String nome = rs.getString("nome");
-        String titulo = rs.getString("titulo");
-        String descricao = rs.getString("descricao");
-
-        return new Conquista(id, nome, descricao, pontos, titulo);
-    }
-
-    public List<Conquista> buscarTodas()
-            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException {
+    public List<Conquista> buscarTodas(){
         String sql = "SELECT conquista_id, pontos, nome, titulo, descricao FROM tb_conquista";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-            List<Conquista> conquistas = new ArrayList<>();
-
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()){
-                conquistas.add(getConquista(rs));
-            }
-
-
-            return conquistas;
-
-        }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao buscar conquistas");
-            return null;
-        }
+        return jdbcTemplate.query(sql, conquistaMapper);
     }
 
-    public int excluir(Conquista conquista)
-            throws DatabaseException, ConstraintViolationException,TooLargeException, NullDataException ,UnableToFindEntityException {
+    public int excluir(long id){
         String sql = "DELETE FROM tb_conquista WHERE conquista_id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            int registros = 0;
-
-            pstmt.setLong(1, conquista.getId());
-            registros = pstmt.executeUpdate();
-
-            if (registros == 0 )
-                throw new UnableToFindEntityException("Entidade não encontrada", "TB_CONQUISTA");
-
-            return registros;
-
-        } catch (SQLException e) {
-            OracleExceptionTranslator.translateException(e, "Erro ao excluir conquista");
-            return -1;
-        }
+        return jdbcTemplate.update(sql, id);
     }
 
-    public int editar(long id, Conquista conquista)
-            throws DatabaseException, ConstraintViolationException,TooLargeException, NullDataException ,UnableToFindEntityException {
+    public int editar(long id, int pontos, String nome, String titulo, String descricao){
         String sql = "UPDATE tb_conquista SET pontos = ?, nome = ?, titulo = ?, descricao = ? WHERE conquista_id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-
-            pstmt.setInt(1, conquista.getPontos());
-            pstmt.setString(2, conquista.getNome());
-            pstmt.setString(3, conquista.getTitulo());
-            pstmt.setString(4, conquista.getDescricao());
-            pstmt.setLong(5, id);
-
-            int registros = pstmt.executeUpdate();
-            if (registros == 0)
-                throw new UnableToFindEntityException("Erro ao editar conquista: entidade não encontrada", "TB_CONQUISTA");
-            return registros;
-        } catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao editar conquista");
-            return -1;
-        }
+        return jdbcTemplate.update(sql, pontos, nome, titulo, descricao, id);
     }
 
-    public List<Conquista> buscarConcluidas(UsuarioSoulMove usuario)
-            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException{
+    public List<Conquista> buscarConcluidas(long usuarioId){
         String sql = "SELECT conquista_id, pontos, titulo, nome, descricao FROM tb_conquista WHERE conquista_id IN (SELECT conquista_id FROM tb_usuario_conquista WHERE usuario_id = ?)";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-            pstmt.setLong(1, usuario.getId());
-            ResultSet rs = pstmt.executeQuery();
-
-            List<Conquista> conquistas = new ArrayList<>();
-            while (rs.next()) {
-                conquistas.add(getConquista(rs));
-            }
-            return conquistas;
-        } catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao buscar missões.");
-            return null;
-        }
+        return jdbcTemplate.query(sql, conquistaMapper, usuarioId);
     }
 
-    public void completar(UsuarioSoulMove usuario, Conquista conquista)
-            throws DatabaseException, ConstraintViolationException, NullDataException, TooLargeException{
+    public void completar(UsuarioSoulMove usuario, Conquista conquista){
 
         String sql = "INSERT INTO tb_usuario_conquista (usuario_id, conquista_id) VALUES (?, ?)";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-
-            pstmt.setLong(1, usuario.getId());
-            pstmt.setLong(2, conquista.getId());
-
-            pstmt.executeUpdate();
-
-
-        } catch (SQLException e){
-
-            OracleExceptionTranslator.translateException(e, "Erro ao completar conquista");
-        }
+        jdbcTemplate.update(sql, usuario.getId(), conquista.getId());
     }
 
-    public void excluirDependencias(Conquista conquista) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
+    public void excluirDependencias(long conquistaId){
         String sql = "DELETE FROM tb_usuario_conquista WHERE conquista_id = ?";
         String sql2 = "UPDATE tb_usuario SET titulo_atual = null WHERE titulo_atual = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-        PreparedStatement pstmt = con.prepareStatement(sql);
-        PreparedStatement pstmt2 = con.prepareStatement(sql2)){
-            pstmt.setLong(1,conquista.getId());
-            pstmt2.setLong(1,conquista.getId());
-            int registros = pstmt.executeUpdate();
-            int registros2 = pstmt2.executeUpdate();
 
-
-
-        }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao excluir dependencias da conquista");
-
-        }
-
-
-
+        jdbcTemplate.update(sql, conquistaId);
+        jdbcTemplate.update(sql2, conquistaId);
     }
 }

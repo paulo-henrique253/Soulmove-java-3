@@ -4,6 +4,12 @@ import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.Usuario;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.exceptions.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -11,158 +17,111 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.sql.SQLException;
+import java.util.Map;
 
+@Repository
 public class UsuarioRepository {
 
+    private final JdbcTemplate jdbcTemplate;
 
-    public UsuarioSoulMove cadastrar(String nome, String email, String senha)
-            throws ConstraintViolationException, NullDataException, TooLargeException, DatabaseException{
-        String sql = "INSERT INTO TB_USUARIO(nome, pontos, email, data_cadastro, senha) VALUES(?, ?, ?, ?, ?)";
-
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql, new String[] { "USUARIO_ID" })) {
-
-            pstmt.setString(1, nome);
-            pstmt.setInt(2, 0);
-            pstmt.setString(3, email);
-
-            LocalDate data = LocalDate.now();
-            pstmt.setDate(4, Date.valueOf(data));
-
-            pstmt.setString(5, senha);
-
-            pstmt.executeUpdate();
-            ResultSet rs = pstmt.getGeneratedKeys();
-            if (rs.next()){
-                long id = rs.getBigDecimal(1).longValue();
-                return new UsuarioSoulMove(id, nome, 0, email, data, senha);
-            }
-
-            return null;
-        } catch (SQLException e) {
-            OracleExceptionTranslator.translateException(e, "Erro ao cadastrar usuário");
-            return null;
-        }
+    @Autowired
+    public UsuarioRepository(JdbcTemplate jdbcTemplate){
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    public UsuarioSoulMove buscar(long id) 
-    throws DatabaseException, ConstraintViolationException, TooLargeException, NullDataException, UnableToFindEntityException{
-        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_atual FROM tb_usuario WHERE usuario_id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
+    RowMapper<UsuarioSoulMove> usuarioMapper = (rs, rowNum) ->{
+        long usuarioId = rs.getLong("usuario_id");
+        String usuarioNome = rs.getString("nome");
+        String usuarioEmail = rs.getString("email");
+        LocalDate usuarioDataCadastro = rs.getDate("data_cadastro").toLocalDate();
+        String usuarioSenha = rs.getString("senha");
+        int usuarioPontos = rs.getInt("pontos");
 
-            pstmt.setLong(1, id);
+        UsuarioSoulMove u = new UsuarioSoulMove(usuarioId, usuarioNome, usuarioPontos , usuarioEmail, usuarioDataCadastro, usuarioSenha);
 
-            return this.executarBusca(pstmt);
 
-        } catch (SQLException e){
+        //conquista
+        Long conquistaId = rs.getObject("titulo_atual", Long.class);
+        if (conquistaId != null){
+            Conquista c = new Conquista();
+            c.setId(conquistaId);
+            c.setNome(rs.getString("conquista_nome"));
+            c.setTitulo(rs.getString("conquista_titulo"));
+            c.setDescricao(rs.getString("conquista_descricao"));
+            c.setPontos(rs.getInt("conquista_pontos"));
 
-           OracleExceptionTranslator.translateException(e, "Erro ao buscar usuario: ");
-           return null;
-        } catch (UnableToFindEntityException e){
-            throw e;
+            u.setTituloAtual(c);
+        } else u.setTituloAtual(null);
+
+        return u;
+    };
+
+    public UsuarioSoulMove cadastrar(String nome, String email, String senha){
+        String sql = "INSERT INTO TB_USUARIO(nome, pontos, email, senha) VALUES(?, ?, ?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(sql, new String[] { "USUARIO_ID" , "DATA_CADASTRO"});
+            ps.setString(1, nome);
+            ps.setInt(2, 0);
+            ps.setString(3, email);
+            ps.setString(4, senha);
+
+            return ps;
+        }, keyHolder);
+
+        Map<String, Object> chaves = keyHolder.getKeys();
+        if (chaves != null && !chaves.isEmpty()){
+            long id = ((Number) chaves.get("USUARIO_ID")).longValue();
+            LocalDate data = ((Date) chaves.get("DATA_CADASTRO")).toLocalDate();
+
+
+            UsuarioSoulMove u = new UsuarioSoulMove(id, nome, 0, email,data, senha);
+            return u;
         }
+        throw new RuntimeException("Impossivel obter as chaves geradas para o usuario");
+
+
     }
 
-    public UsuarioSoulMove buscar(String email) throws DatabaseException, UnableToFindEntityException, ConstraintViolationException, NullDataException, TooLargeException {
-        String sql = "SELECT usuario_id, nome, email, senha, data_cadastro, pontos, titulo_atual FROM tb_usuario WHERE email = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-
-            pstmt.setString(1, email);
-
-            return this.executarBusca(pstmt);
-
-        } catch (SQLException e){
-            throw new DatabaseException("Ocorreu um erro inesperado no banco de dados.",e);
-        } catch (Exception e){
-            throw e;
-        }
+    public UsuarioSoulMove buscar(long id){
+        String sql = """
+            SELECT 
+                u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, u.pontos, u.titulo_atual,
+                c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos
+            FROM tb_usuario u
+            LEFT JOIN tb_conquista c ON u.titulo_atual = c.conquista_id
+            WHERE u.usuario_id = ?
+            """;
+        return jdbcTemplate.queryForObject(sql, usuarioMapper, id);
     }
 
-    public UsuarioSoulMove executarBusca(PreparedStatement pstmt) throws SQLException, UnableToFindEntityException, ConstraintViolationException, NullDataException, DatabaseException, TooLargeException {
-        ResultSet rs = pstmt.executeQuery();
-        if (rs.next()){
-            long id = rs.getBigDecimal("usuario_id").longValue();
-            String nome = rs.getString("nome");
-            String email = rs.getString("email");
-            String senha = rs.getString("senha");
-            LocalDate data = rs.getDate("data_cadastro").toLocalDate();
-            int pontos = rs.getInt("pontos");
-
-            UsuarioSoulMove usuario = new UsuarioSoulMove(id, nome, pontos, email , data, senha);
-            try {
-                usuario.setTituloAtual(new ConquistaRepository().buscar(rs.getLong("titulo_atual")));
-            } catch (UnableToFindEntityException e){
-                usuario.setTituloAtual(null);
-            }
-
-            return usuario;
-        }
-        else {
-            throw new UnableToFindEntityException("Usuario Não encontrado.", "TB_USUARIO");
-        }
+    public UsuarioSoulMove buscar(String email){
+        String sql = """
+            SELECT 
+                u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, u.pontos, u.titulo_atual,
+                c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos
+            FROM tb_usuario u
+            LEFT JOIN tb_conquista c ON u.titulo_atual = c.conquista_id
+            WHERE u.email = ?
+            """;
+        return jdbcTemplate.queryForObject(sql, usuarioMapper, email);
     }
 
-    public int alterarConquista(UsuarioSoulMove usuario, Conquista conquista)
-            throws DatabaseException, ConstraintViolationException, TooLargeException, NullDataException, UnableToFindEntityException{
+    public int alterarConquista(UsuarioSoulMove usuario, Conquista conquista){
         String sql = "UPDATE tb_usuario SET titulo_atual = ? WHERE usuario_id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-            int registros = 0;
-
-            pstmt.setLong(1, conquista.getId());
-            pstmt.setLong(2, usuario.getId());
-
-            registros = pstmt.executeUpdate();
-
-            if (registros == 0)
-                throw new UnableToFindEntityException("Usuario não encontrado", "TB_USUARIO");
-
-            return registros;
-        } catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao alterar conquista");
-            return -1;
-        }
-
+        return jdbcTemplate.update(sql, conquista.getId(), usuario.getId());
     }
 
-    public int excluir(UsuarioSoulMove usuario)
-            throws DatabaseException, UnableToFindEntityException, TooLargeException, NullDataException, ConstraintViolationException{
+    public int excluir(UsuarioSoulMove usuario){
         String sql = "DELETE FROM tb_usuario WHERE id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-
-            int registros = 0;
-            pstmt.setLong(1, usuario.getId());
-            registros = pstmt.executeUpdate();
-
-            if (registros == 0)
-                throw new UnableToFindEntityException("Usuario não encontrado.", "TB_USUARIO");
-
-            return registros;
-
-        }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao excluir usuario");
-            return -1;
-        }
+        return jdbcTemplate.update(sql, usuario.getId());
     }
 
 
-    public void alterarPontos(UsuarioSoulMove usuario, int pontos) throws ConstraintViolationException, NullDataException, DatabaseException, TooLargeException, UnableToFindEntityException {
+    public int alterarPontos(UsuarioSoulMove usuario, int pontos){
         String sql = "UPDATE tb_usuario SET pontos = ? WHERE usuario_id = ?";
-        try (Connection con = new ConnectionFactory().getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)){
-            pstmt.setInt(1, pontos);
-            pstmt.setLong(2, usuario.getId());
-
-            int registros = pstmt.executeUpdate();
-            if (registros == 0)
-                throw new UnableToFindEntityException("Erro ao alterar pontos: entidade não encontrada", "TB_USUARIO");
-
-        }catch (SQLException e){
-            OracleExceptionTranslator.translateException(e, "Erro ao alterar pontos");
-        }
+        return jdbcTemplate.update(sql, pontos, usuario.getId());
     }
 
 }

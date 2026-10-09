@@ -1,26 +1,41 @@
 package br.com.soulmove.app;
 
-import br.com.soulmove.Service.*;
+import br.com.soulmove.service.*;
 import br.com.soulmove.api.CalculadorDeRotas;
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.Viagem;
-import br.com.soulmove.model.exceptions.*;
+import br.com.soulmove.model.exceptions.InvalidDataException;
 import br.com.soulmove.model.type.TipoMissao;
 import br.com.soulmove.model.type.Veiculo;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Scanner;
 
-public class SoulMove {
+@Component
+public class AppRunner implements CommandLineRunner {
 
-    public static void main(String[] args) {
-        UsuarioService usuarioService = new UsuarioService();
-        MissaoService missaoService = new MissaoService();
-        ConquistaService conquistaService = new ConquistaService();
-        ViagemService viagemService = new ViagemService();
-        CarteiraService carteiraService = new CarteiraService();
+    private final UsuarioService usuarioService;
+    private final MissaoService missaoService;
+    private final ConquistaService conquistaService;
+    private final ViagemService viagemService;
+    private final CarteiraService carteiraService;
+
+    public AppRunner(UsuarioService usuarioService, MissaoService missaoService, ConquistaService conquistaService, ViagemService viagemService, CarteiraService carteiraService) {
+        this.usuarioService = usuarioService;
+        this.missaoService = missaoService;
+        this.conquistaService = conquistaService;
+        this.viagemService = viagemService;
+        this.carteiraService = carteiraService;
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Override
+    public void run(String... args) throws Exception {
+
 
         Scanner leitura = new Scanner(System.in);
 
@@ -48,12 +63,8 @@ public class SoulMove {
                         usuarioAtual = usuarioService.logar(email, senha);
 
                     }
-                    catch (UnableToFindEntityException e){
-                        System.out.println(e.getMessage());
-                        System.out.println("Email não cadastrado!\n");
-                    }
-                    catch (Exception e) {
-                        System.out.println(e.getMessage());
+                    catch (RuntimeException e){
+                        throw new RuntimeException(e);
                     }
                 }
 
@@ -71,21 +82,8 @@ public class SoulMove {
 
                     try {
                         usuarioAtual = usuarioService.cadastrar(nome, email, senha);
-                    }
-                    catch (ConstraintViolationException e){
-
-                        System.out.println(e.getMessage());
-
-                        if (e.getConstraintName().equalsIgnoreCase("TB_USUARIO_UK"))
-                            System.out.println("ERRO!Email ja cadastrado, insira outro");
-                    }
-                    catch (TooLargeException e){
-
-                        System.out.println("ERRO!O campo \"" + e.getColumnName().toLowerCase() + "\" Não pode ser tão grande!");
-                    }
-                    catch (Exception e) {
-
-                        System.out.println(e.getMessage());
+                    } catch (RuntimeException e) {
+                        throw new RuntimeException(e);
                     }
                 }
 
@@ -147,21 +145,8 @@ public class SoulMove {
 
                     try {
                         usuarioAtual = usuarioService.cadastrar(nome, email, senha);
-                    }
-                    catch (ConstraintViolationException e){
-
-                        System.out.println(e.getMessage());
-
-                        if (e.getConstraintName().equalsIgnoreCase("TB_USUARIO_UK"))
-                            System.out.println("ERRO!Email ja cadastrado, insira outro");
-                    }
-                    catch (TooLargeException e){
-
-                        System.out.println("ERRO!O campo \"" + e.getColumnName().toLowerCase() + "\" Não pode ser tão grande!");
-                    }
-                    catch (Exception e) {
-
-                        System.out.println(e.getMessage());
+                    } catch (RuntimeException e) {
+                        throw new RuntimeException(e);
                     }
 
                 }
@@ -179,13 +164,8 @@ public class SoulMove {
                     try {
                         usuarioAtual = usuarioService.logar(email, senha);
 
-                    }
-                    catch (UnableToFindEntityException e){
-
-                        System.out.println("Email não cadastrado!");
-                    }
-                    catch (Exception e) {
-                        System.out.println(e.getMessage());
+                    } catch (RuntimeException e) {
+                        throw new RuntimeException(e);
                     }
 
                 }
@@ -194,7 +174,7 @@ public class SoulMove {
                     System.out.println("\n" + "- - - Vizualizar Perfil - - -" + "\n");
                     try {
                         System.out.println(usuarioAtual);
-                        System.out.println("Saldo: " + carteiraService.buscar(usuarioAtual).getSaldo());
+                        System.out.println("Saldo: " + usuarioAtual.getCarteira().getSaldo());
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
@@ -254,7 +234,7 @@ public class SoulMove {
                 case 5 ->{
                     System.out.println("\n" + "- - - Ver Historico de Viagens - - -" + "\n");
                     try {
-                        List<Viagem> viagens = viagemService.obterHistorico(usuarioAtual);
+                        List<Viagem> viagens = viagemService.obterHistorico(usuarioAtual.getId());
                         if (viagens.isEmpty())
                             System.out.println("Nenhuma viagem realizada");
 
@@ -297,17 +277,7 @@ public class SoulMove {
                     long idM = leitura.nextLong();
                     try {
                         Missao missao = missaoService.buscar(idM);
-                        missaoService.completarMissao(usuarioAtual, missao);
-                    }
-                    catch (UnableToFindEntityException e){
-                        if(e.getTableName().equalsIgnoreCase("TB_MISSAO")){
-                            System.out.println("Id inválido!");
-                        } else System.out.println(e.getMessage());
-                    }
-                    catch (ConstraintViolationException e){
-                        if (e.getConstraintName().equalsIgnoreCase("TB_USUARIO_MISSAO_PK")){
-                            System.out.println("Missão ja concluida");
-                        } else System.out.println(e.getMessage());
+                        usuarioService.completarMissao(usuarioAtual, missao);
                     }
                     catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -339,19 +309,8 @@ public class SoulMove {
                         long id = leitura.nextLong();
                         Conquista conquista = conquistaService.buscar(id);
 
-                        conquistaService.completarConquista(usuarioAtual, conquista);
-                    }catch (UnableToFindEntityException e){
-                        if(e.getTableName().equalsIgnoreCase("TB_CONQUISTA"))
-                            System.out.println("Id Inválido");
-                        else
-                            System.out.println(e.getMessage());
-                    }
-                    catch (ConstraintViolationException e){
-                        if (e.getConstraintName().equalsIgnoreCase("TB_USUARIO_CONQUISTA_PK")){
-                            System.out.println("conquista ja concluida");
-                        } else System.out.println(e.getMessage());
-                    }
-                    catch (Exception e) {
+                        usuarioService.completarConquista(usuarioAtual, conquista);
+                    }catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                 }
@@ -359,7 +318,7 @@ public class SoulMove {
                 case 10 ->{
                     System.out.println("\n" + "- - - Adicionar titulo ao perfil - - -" + "\n");
                     try {
-                        List<Conquista> conquistasConcluidas = conquistaService.buscarConcluidas(usuarioAtual);
+                        List<Conquista> conquistasConcluidas = conquistaService.buscarConcluidas(usuarioAtual.getId());
                         if (conquistasConcluidas.isEmpty()){
                             System.out.println("Nenhuma conquista concluida");
                         } else {
@@ -372,10 +331,6 @@ public class SoulMove {
                             Conquista conquista = conquistaService.buscar(id);
                             usuarioService.alterarTitulo(usuarioAtual, conquista);
                         }
-                    } catch (UnableToFindEntityException e){
-                        if(e.getTableName().equalsIgnoreCase("TB_CONQUISTA"))
-                            System.out.println("Id inválido");
-                        else System.out.println(e.getMessage());
                     }
                     catch (Exception e){
                         System.out.println(e.getMessage());
@@ -433,9 +388,7 @@ public class SoulMove {
 
 
                         missaoService.cadastrar(pontos, nome, TipoMissao.getTipoMissao(tipo), descricao);
-                    }catch (TooLargeException e) {
-                        System.out.println("O campo \"" + e.getColumnName().toLowerCase() +"\" não pode ser tão grande!");
-                    } catch (Exception e) {
+                    }catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
 
@@ -477,13 +430,7 @@ public class SoulMove {
                         String descricao = leitura.nextLine();
 
 
-                        missaoService.editar(id, new Missao(id, nome, TipoMissao.getTipoMissao(tipo), descricao, pontos));
-                    } catch (UnableToFindEntityException e){
-                        if (e.getTableName().equalsIgnoreCase("TB_MISSAO"))
-                            System.out.println("Id inválido");
-                    }
-                    catch (TooLargeException e) {
-                        System.out.println("O campo \"" + e.getColumnName().toLowerCase() +"\" não pode ser tão grande!");
+                        missaoService.editar(id, pontos, nome, descricao,TipoMissao.getTipoMissao(tipo));
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
@@ -502,7 +449,7 @@ public class SoulMove {
                         System.out.println("Confirmar exclusão?(s/n)");
                         String resp = leitura.next() + leitura.nextLine();
                         if(resp.equalsIgnoreCase("s"))
-                            missaoService.excluir(missao);
+                            missaoService.excluir(missao.getId());
                         else
                             System.out.println("Exclusão cancelada");
 
@@ -530,9 +477,7 @@ public class SoulMove {
                         String descricao = leitura.nextLine();
 
                         conquistaService.cadastrar(pontos, nome, titulo, descricao);
-                    }catch (TooLargeException e){
-                        System.out.println("O campo \"" +e.getColumnName()+ "\" Não pode ser tão grande!" );
-                    } catch (Exception e) {
+                    }catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                 }
@@ -557,13 +502,8 @@ public class SoulMove {
                         System.out.println("Insira a descrição");
                         String descricao = leitura.nextLine();
 
-                        conquistaService.editar(id, new Conquista(id, nome, descricao, pontos, titulo));
-                    }catch (UnableToFindEntityException e){
-                        System.out.println("id inválido");
-                    }
-                    catch (TooLargeException e){
-                        System.out.println("O campo \"" +e.getColumnName()+ "\" Não pode ser tão grande!" );
-                    } catch (Exception e) {
+                        conquistaService.editar(id, pontos, nome, titulo, descricao);
+                    }catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                 }
@@ -580,8 +520,8 @@ public class SoulMove {
                         System.out.println("Confirmar exclusão(s/n): ");
                         String resp = leitura.next() + leitura.nextLine();
                         if (resp.equalsIgnoreCase("s")){
-                            conquistaService.excluir(conquista);
-                            usuarioService.atualizar(usuarioAtual);
+                            conquistaService.excluir(conquista.getId());
+                            usuarioAtual.setTituloAtual(null);
                         }
                         else System.out.println("Exclusão cancelada");
 
@@ -617,7 +557,7 @@ public class SoulMove {
         if (leitura.hasNextLine()) {
             // Consome o que sobrou da linha atual, se houver
             String resto = leitura.nextLine();
-            
+
         }
     }
 }
