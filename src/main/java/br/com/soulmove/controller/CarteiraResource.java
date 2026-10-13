@@ -4,6 +4,7 @@ import br.com.soulmove.controller.Dto.CarteiraDtoMapper;
 import br.com.soulmove.controller.Dto.CarteiraRequestDto;
 import br.com.soulmove.model.CarteiraUsuario;
 import br.com.soulmove.service.CarteiraService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ public class CarteiraResource {
 
     private final CarteiraService service;
 
+    @Autowired
     public CarteiraResource(CarteiraService service) {
         this.service = service;
     }

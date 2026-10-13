@@ -6,6 +6,7 @@ import br.com.soulmove.controller.Dto.ViagemResponseDto;
 import br.com.soulmove.model.Viagem;
 import br.com.soulmove.model.type.Veiculo;
 import br.com.soulmove.service.ViagemService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 public class ViagemResource {
     private final ViagemService service;
 
+    @Autowired
     public ViagemResource(ViagemService service) {
         this.service = service;
     }
