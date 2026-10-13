@@ -1,5 +1,6 @@
 package br.com.soulmove.service;
 
+import br.com.soulmove.exceptions.BussinesRuleException;
 import br.com.soulmove.exceptions.InvalidDataException;
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.Missao;
@@ -31,7 +32,11 @@ public class UsuarioService {
     public UsuarioSoulMove cadastrar(String nome, String email, String senha){
 
         if (!email.contains("@"))
-            throw new RuntimeException("O campo Email precisa de um @");
+            throw new InvalidDataException("Email invalido");
+        if (nome.isEmpty())
+            throw new BussinesRuleException("O campo nome não pode ser vazio");
+        if (senha.length() < 6)
+            throw new BussinesRuleException("A senha precisa ter mais de 6 caracteres");
 
         UsuarioSoulMove usuario = repository.cadastrar(nome, email, senha);
 
@@ -83,16 +88,18 @@ public class UsuarioService {
 
     @Transactional
     public void aumentarPontos(UsuarioSoulMove usuario, int pontos){
+        if (pontos <= 0)
+            throw new BussinesRuleException("A quantidade de pontos deve ser maior que 0.");
         repository.alterarPontos(usuario, usuario.getPontos() + pontos);
         usuario.setPontos(usuario.getPontos() + pontos);
     }
 
     @Transactional
-    public void resgatarPontos(UsuarioSoulMove usuario, int quantidade) throws InvalidDataException {
+    public void resgatarPontos(UsuarioSoulMove usuario, int quantidade){
         if (quantidade * taxaDeConversao < 10.0)
-            throw new InvalidDataException("A Quandidade minima de pontos a ser sacada é de R$10,00 em pontos (" +Math.ceil(10.0 /taxaDeConversao)+ " pontos)", "pontos");
+            throw new BussinesRuleException("A Quandidade minima de pontos a ser sacada é de R$10,00 em pontos (" +Math.ceil(10.0 /taxaDeConversao)+ " pontos)");
         if(usuario.getPontos() < quantidade){
-            throw new InvalidDataException("Quantidade inserida maior que a quantidade de pontos disponivel", "pontos");
+            throw new BussinesRuleException("Quantidade inserida maior que a quantidade de pontos disponivel");
         }
 
 
