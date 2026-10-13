@@ -1,9 +1,9 @@
 package br.com.soulmove.service;
 
+import br.com.soulmove.exceptions.InvalidDataException;
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.UsuarioSoulMove;
-import br.com.soulmove.model.exceptions.*;
 import br.com.soulmove.repository.ConquistaRepository;
 import br.com.soulmove.repository.MissaoRepository;
 import br.com.soulmove.repository.UsuarioRepository;

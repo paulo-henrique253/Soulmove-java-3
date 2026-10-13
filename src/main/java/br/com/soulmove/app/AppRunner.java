@@ -6,11 +6,10 @@ import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.Viagem;
-import br.com.soulmove.model.exceptions.InvalidDataException;
+import br.com.soulmove.exceptions.InvalidDataException;
 import br.com.soulmove.model.type.TipoMissao;
 import br.com.soulmove.model.type.Veiculo;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Scanner;

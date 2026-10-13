@@ -1,4 +1,4 @@
-package br.com.soulmove.model.exceptions;
+package br.com.soulmove.exceptions;
 
 import br.com.soulmove.repository.OracleErrorParser;
 
