@@ -30,4 +30,8 @@ public class CarteiraService {
     public CarteiraUsuario buscar(long usuarioId){
         return repository.buscar(usuarioId);
     }
+
+    public CarteiraUsuario buscarCarteira(long id) {
+        return repository.buscarCarteira(id);
+    }
 }

@@ -35,6 +35,8 @@ public class UsuarioService {
 
         UsuarioSoulMove usuario = repository.cadastrar(nome, email, senha);
 
+        usuario.setCarteira(carteiraService.cadastrar(usuario));
+
         return usuario;
 
     }
