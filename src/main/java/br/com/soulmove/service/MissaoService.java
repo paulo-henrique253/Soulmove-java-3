@@ -63,7 +63,7 @@ public class MissaoService {
         if (nome.isEmpty())
             throw new BussinesRuleException("O titulo não pode ser vazio.");
 
-        if (nome.isEmpty())
+        if (descricao.isEmpty())
             throw new BussinesRuleException("A descrição não pode ser vazia.");
 
         long id = repository.cadastrar(pontos, nome, tipo, descricao);
