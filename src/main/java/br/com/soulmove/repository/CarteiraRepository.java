@@ -53,4 +53,9 @@ public class CarteiraRepository {
         String sql = "UPDATE tb_carteira SET saldo_mobilidade = ? WHERE carteira_id = ?";
         jdbcTemplate.update(sql, OracleErrorParser.adjustPrecision(saldo, 2), carteira.getId());
     }
+
+    public CarteiraUsuario buscarCarteira(long id) {
+        String sql = "SELECT carteira_id, saldo_mobilidade FROM tb_carteira WHERE carteira_id = ?";
+        return jdbcTemplate.queryForObject(sql, carteiraMapper, id);
+    }
 }

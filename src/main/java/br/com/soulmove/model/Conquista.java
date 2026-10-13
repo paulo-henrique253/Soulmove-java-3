@@ -18,6 +18,13 @@ public class Conquista {
         this.titulo = titulo;
     }
 
+    public Conquista(String nome, String titulo, int pontos, String descricao) {
+        this.nome = nome;
+        this.descricao = descricao;
+        this.pontos = pontos;
+        this.titulo = titulo;
+    }
+
     public long getId() {
         return id;
     }
