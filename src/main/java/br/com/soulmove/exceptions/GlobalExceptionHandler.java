@@ -1,6 +1,7 @@
 package br.com.soulmove.exceptions;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,9 +46,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
+    @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handlerConstraintViolation(
-            ConstraintViolationException ex,
+            DataIntegrityViolationException ex,
             HttpServletRequest request){
 
         HttpStatus status = HttpStatus.BAD_REQUEST; // 400
