@@ -1,5 +1,7 @@
 package br.com.soulmove.model.type;
 
+import br.com.soulmove.exceptions.InvalidDataException;
+
 public enum Veiculo {
     CARRO("carro", 0.2),
     BICICLETA("bicicleta", 0),
@@ -32,6 +34,6 @@ public enum Veiculo {
                 return v;
             }
         }
-        throw new IllegalArgumentException();
+        throw new InvalidDataException("Veiculo inválido: " + s);
     }
 }
