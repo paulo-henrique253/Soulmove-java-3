@@ -1,7 +1,6 @@
 package br.com.soulmove.service;
 
 import br.com.soulmove.exceptions.BussinesRuleException;
-import br.com.soulmove.exceptions.ConstraintViolationException;
 import br.com.soulmove.exceptions.UnableToFindEntityException;
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.type.TipoMissao;

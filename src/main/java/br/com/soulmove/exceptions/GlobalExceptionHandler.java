@@ -135,6 +135,22 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(status).body(error);
     }
+    @ExceptionHandler(InvalidDataException.class)
+    public ResponseEntity<ErrorResponse> handlerInvalidData(
+            InvalidDataException ex,
+            HttpServletRequest request){
+
+        HttpStatus status = HttpStatus.BAD_REQUEST; //400
+
+        ErrorResponse error = new ErrorResponse(
+                Instant.now(),
+                status.value(),
+                "Dados invalidos na request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
 
     // Intercepta qualquer erro inesperado do sistema (evita expor o stacktrace completo) e devolve HTTP 500
     @ExceptionHandler(Exception.class)
@@ -148,7 +164,7 @@ public class GlobalExceptionHandler {
                 Instant.now(),
                 status.value(),
                 "Erro interno do servidor",
-                "Ocorreu um erro inesperado. Tente novamente mais tarde.",
+                ex.getMessage(),
                 request.getRequestURI()
         );
 
