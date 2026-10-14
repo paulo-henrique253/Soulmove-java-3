@@ -16,11 +16,11 @@ import java.util.List;
 public class ConquistaRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    private final RowMapper<Conquista> conquistaMapper = (rs, rowNum) ->{
+    private final RowMapper<Conquista> conquistaMapper = (rs, rowNum) -> {
         Conquista c = new Conquista();
         c.setId(rs.getLong("conquista_id"));
-        c.setNome(rs.getString(rs.getString("nome")));
-        c.setPontos(rs.getInt("pontos"));
+        c.setNome(rs.getString("nome"));
+        // c.setPontos(rs.getInt("pontos"));
         c.setTitulo(rs.getString("titulo"));
         c.setDescricao(rs.getString("descricao"));
         return c;
@@ -69,7 +69,7 @@ public class ConquistaRepository {
     }
 
     public List<Conquista> buscarConcluidas(long usuarioId){
-        String sql = "SELECT conquista_id, pontos, titulo, nome, descricao FROM tb_conquista WHERE conquista_id IN (SELECT conquista_id FROM tb_usuario_conquista WHERE usuario_id = ?)";
+        String sql = "SELECT conquista_id, titulo, nome, descricao FROM tb_conquista WHERE conquista_id IN (SELECT conquista_id FROM tb_usuario_conquista WHERE usuario_id = ?)";
         return jdbcTemplate.query(sql, conquistaMapper, usuarioId);
     }
 

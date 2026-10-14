@@ -2,13 +2,15 @@ package br.com.soulmove.model;
 
 import br.com.soulmove.model.type.TipoMissao;
 
+import java.time.LocalDate;
+
 public class Missao {
     private long id;
     private String titulo;
     private TipoMissao tipo;
     private String descricao;
     private int pontos;
-
+    private LocalDate dataConclusao; // guarda a data de conclusão para missoes obtidas a partir de um usuario que as completou
 
     public Missao() {
     }
@@ -66,6 +68,14 @@ public class Missao {
 
     public void setPontos(int pontos) {
         this.pontos = pontos;
+    }
+
+    public LocalDate getDataConclusao() {
+        return dataConclusao;
+    }
+
+    public void setDataConclusao(LocalDate dataConclusao) {
+        this.dataConclusao = dataConclusao;
     }
 
     @Override

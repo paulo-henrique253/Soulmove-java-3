@@ -6,7 +6,6 @@ import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.type.TipoMissao;
 import br.com.soulmove.repository.MissaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

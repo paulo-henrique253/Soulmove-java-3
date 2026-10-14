@@ -1,11 +1,14 @@
 package br.com.soulmove.model;
 
+import java.time.LocalDate;
+
 public class Conquista {
     private long id;
     private String nome;
     private String descricao;
     private String titulo;
     private int pontos;
+    private LocalDate dataConclusao; // guarda a data de conclusão para conquistas obtidas a partir de um usuario que as completou
 
     public Conquista() {
     }
@@ -63,6 +66,14 @@ public class Conquista {
 
     public void setPontos(int pontos) {
         this.pontos = pontos;
+    }
+
+    public LocalDate getDataConclusao() {
+        return dataConclusao;
+    }
+
+    public void setDataConclusao(LocalDate dataConclusao) {
+        this.dataConclusao = dataConclusao;
     }
 
     @Override

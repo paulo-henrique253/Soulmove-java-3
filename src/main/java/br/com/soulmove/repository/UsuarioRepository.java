@@ -36,14 +36,15 @@ public class UsuarioRepository {
 
 
         //conquista
-        Long conquistaId = rs.getObject("titulo_atual", Long.class);
+        Long conquistaId = rs.getObject("conquista_id", Long.class);
         if (conquistaId != null){
             Conquista c = new Conquista();
             c.setId(conquistaId);
             c.setNome(rs.getString("conquista_nome"));
             c.setTitulo(rs.getString("conquista_titulo"));
             c.setDescricao(rs.getString("conquista_descricao"));
-            c.setPontos(rs.getInt("conquista_pontos"));
+            //c.setPontos(rs.getInt("conquista_pontos"));
+            c.setDataConclusao(rs.getDate("conquista_data").toLocalDate());
 
             u.setTituloAtual(c);
         } else u.setTituloAtual(null);
@@ -93,12 +94,29 @@ public class UsuarioRepository {
 
     public UsuarioSoulMove buscar(String email){
         String sql = """
-            SELECT 
-                u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, u.pontos, u.titulo_atual,
-                c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos
-            FROM tb_usuario u
-            LEFT JOIN tb_conquista c ON u.titulo_atual = c.conquista_id
-            WHERE u.email = ?
+                SELECT
+                    u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, GREATEST(NVL(m.pontos_missoes, 0) - NVL(cr.pontos_convertidos, 0), 0) AS pontos,
+                    c.conquista_id, c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, uc.data_conquista AS conquista_data
+                FROM tb_usuario u
+                LEFT JOIN (
+                        SELECT usuario_id,
+                               SUM(pontuacao_recebida) AS pontos_missoes
+                        FROM   TB_USUARIO_MISSAO
+                        WHERE  status_missao = 'concluida'
+                        GROUP BY usuario_id
+                      ) m ON m.usuario_id = u.usuario_id
+                LEFT JOIN (
+                        SELECT usuario_id,
+                               SUM(pontos_convertidos) AS pontos_convertidos,
+                               SUM(creditos_gerados) AS creditos_totais
+                        FROM   TB_CONVERSAO_PONTOS
+                        GROUP BY usuario_id
+                      ) cr ON cr.usuario_id = u.usuario_id
+                LEFT JOIN tb_usuario_conquista uc
+                    ON uc.usuario_id = u.usuario_id
+                    AND uc.flag_titulo_atual = 'S'
+                LEFT JOIN tb_conquista c ON c.conquista_id = uc.conquista_id
+                WHERE u.email = ?
             """;
         return jdbcTemplate.queryForObject(sql, usuarioMapper, email);
     }

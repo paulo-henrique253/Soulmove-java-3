@@ -32,7 +32,7 @@ public class MissaoRepository {
         m.setTitulo(rs.getString("titulo"));
         m.setDescricao(rs.getString("descricao"));
         m.setPontos(rs.getInt("pontos_missao"));
-        m.setTipo(TipoMissao.getTipoMissao(rs.getString("tipo_missao")));
+        //m.setTipo(TipoMissao.getTipoMissao(rs.getString("tipo_missao")));
         return m;
     };
 
@@ -84,7 +84,7 @@ public class MissaoRepository {
 
 
     public List<Missao> buscarConcluidas(long usuarioId){
-        String sql = "SELECT missao_id, pontos_missao, titulo, tipo_missao, descricao FROM tb_missao WHERE missao_id IN (SELECT missao_id FROM tb_usuario_missao WHERE usuario_id = ? and status_missao = 'concluida')";
+        String sql = "SELECT missao_id, pontos_missao, titulo, descricao FROM tb_missao WHERE missao_id IN (SELECT missao_id FROM tb_usuario_missao WHERE usuario_id = ? and status_missao = 'concluida')";
         return jdbcTemplate.query(sql, missaoMapper, usuarioId);
     }
 
