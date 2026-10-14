@@ -2,8 +2,6 @@ package br.com.soulmove.repository;
 
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.UsuarioSoulMove;
-import br.com.soulmove.model.exceptions.*;
-import br.com.soulmove.model.type.TipoMissao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,13 +9,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Repository
 public class ConquistaRepository {

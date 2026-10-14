@@ -1,9 +1,7 @@
 package br.com.soulmove.repository;
 
 import br.com.soulmove.model.Conquista;
-import br.com.soulmove.model.Usuario;
 import br.com.soulmove.model.UsuarioSoulMove;
-import br.com.soulmove.model.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,12 +9,9 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.time.LocalDate;
-import java.sql.SQLException;
 import java.util.Map;
 
 @Repository

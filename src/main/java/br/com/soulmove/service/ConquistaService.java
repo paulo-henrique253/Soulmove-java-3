@@ -1,5 +1,7 @@
 package br.com.soulmove.service;
 
+import br.com.soulmove.exceptions.BussinesRuleException;
+import br.com.soulmove.exceptions.UnableToFindEntityException;
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.repository.ConquistaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,17 @@ public class ConquistaService {
 
     @Transactional
     public Conquista cadastrar(int pontos, String nome, String titulo, String descricao){
+        if (pontos <=0)
+            throw new BussinesRuleException("O atributo pontos deve ser maior que 0.");
+
+        if (nome.isEmpty())
+            throw new BussinesRuleException("O nome não pode ser vazio.");
+
+        if (titulo.isEmpty())
+            throw new BussinesRuleException("O titulo não pode ser vazio.");
+
+        if (descricao.isEmpty())
+            throw new BussinesRuleException("A descrição não pode ser vazia.");
         long id = repository.cadastrar(pontos, nome, titulo, descricao);
         Conquista c = new Conquista();
         c.setId(id);
@@ -51,6 +64,18 @@ public class ConquistaService {
 
     @Transactional
     public void editar(long id, int pontos, String nome, String titulo, String descricao){
-        repository.editar(id, pontos, nome, titulo, descricao);
+        if (pontos <=0)
+            throw new BussinesRuleException("O atributo pontos deve ser maior que 0.");
+
+        if (nome.isEmpty())
+            throw new BussinesRuleException("O nome não pode ser vazio.");
+
+        if (titulo.isEmpty())
+            throw new BussinesRuleException("O titulo não pode ser vazio.");
+
+        if (descricao.isEmpty())
+            throw new BussinesRuleException("A descrição não pode ser vazia.");
+        int retorno = repository.editar(id, pontos, nome, titulo, descricao);
+        if (retorno == 0) throw new UnableToFindEntityException("Conquista não encontrada. Id: " + id);
     }
 }

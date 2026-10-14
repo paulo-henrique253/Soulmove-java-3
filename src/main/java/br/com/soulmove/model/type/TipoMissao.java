@@ -1,5 +1,7 @@
 package br.com.soulmove.model.type;
 
+import br.com.soulmove.exceptions.InvalidDataException;
+
 public enum TipoMissao {
     DIARIA("diaria"),
     SEMANAL("semanal"),
@@ -24,6 +26,6 @@ public enum TipoMissao {
             }
         }
 
-        throw new IllegalArgumentException();
+        throw new InvalidDataException("tipoMissao inválido: " + s);
     }
 }

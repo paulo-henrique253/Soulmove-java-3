@@ -3,7 +3,6 @@ package br.com.soulmove.repository;
 
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.UsuarioSoulMove;
-import br.com.soulmove.model.exceptions.*;
 import br.com.soulmove.model.type.StatusMissao;
 import br.com.soulmove.model.type.TipoMissao;
 

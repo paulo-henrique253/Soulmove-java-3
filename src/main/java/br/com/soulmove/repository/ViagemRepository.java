@@ -1,9 +1,7 @@
 package br.com.soulmove.repository;
 
-import br.com.soulmove.model.Usuario;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.Viagem;
-import br.com.soulmove.model.exceptions.*;
 import br.com.soulmove.model.type.Veiculo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 

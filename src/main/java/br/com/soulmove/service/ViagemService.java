@@ -1,6 +1,7 @@
 package br.com.soulmove.service;
 
 import br.com.soulmove.api.CalculadorDeRotas;
+import br.com.soulmove.exceptions.InvalidDataException;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.Viagem;
 import br.com.soulmove.model.type.Veiculo;
@@ -34,27 +35,42 @@ public class ViagemService {
         return repository.buscarHistorico(usuarioId);
     }
 
-    public Viagem simularViagem(String origem, String destino, Veiculo veiculo){
-        try{
-            CalculadorDeRotas.Coordenadas coordenadasO = CalculadorDeRotas.buscarCoordenadas(origem);
-            CalculadorDeRotas.Coordenadas coordenadasD = CalculadorDeRotas.buscarCoordenadas(destino);
-            double kmPercorridos = CalculadorDeRotas.calcularRota(coordenadasO, coordenadasD);
+    public Viagem simularViagem(String origem, String destino, Veiculo veiculo) {
 
-            double carbonoEmitido = kmPercorridos * veiculo.getEmissao();
-            double carbonoEconomizado = (Veiculo.CARRO.getEmissao() * kmPercorridos) - carbonoEmitido;
+        CalculadorDeRotas.Coordenadas coordenadasO;
+        try {
+            coordenadasO = CalculadorDeRotas.buscarCoordenadas(origem);
+        } catch (Exception e) {
+            throw new InvalidDataException("Coordenadas da origem não encontradas. Origem: " + origem + ". Tente o formato: Rua -------, numero, nome da cidade.");
+        }
 
-            Viagem v = new Viagem();
-            v.setOrigem(origem);
-            v.setDestino(destino);
-            v.setTipoVeiculo(veiculo);
-            v.setKmPercorrido(kmPercorridos);
-            v.setCarbonoEmitido(carbonoEmitido);
-            v.setCarbonoEconomizado(carbonoEconomizado);
+        CalculadorDeRotas.Coordenadas coordenadasD;
+        try {
+            coordenadasD = CalculadorDeRotas.buscarCoordenadas(destino);
+        } catch (Exception e) {
+            throw new InvalidDataException("Coordenadas do destino não encontradas. Destino: " + destino + ". Tente o formato: Rua -------, numero, nome da cidade.");
+        }
 
-            return v;
+
+        double kmPercorridos;
+        try {
+            kmPercorridos = CalculadorDeRotas.calcularRota(coordenadasO, coordenadasD);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        double carbonoEmitido = kmPercorridos * veiculo.getEmissao();
+        double carbonoEconomizado = (Veiculo.CARRO.getEmissao() * kmPercorridos) - carbonoEmitido;
+
+        Viagem v = new Viagem();
+        v.setOrigem(origem);
+        v.setDestino(destino);
+        v.setTipoVeiculo(veiculo);
+        v.setKmPercorrido(kmPercorridos);
+        v.setCarbonoEmitido(carbonoEmitido);
+        v.setCarbonoEconomizado(carbonoEconomizado);
+
+        return v;
+
     }
 
 }
