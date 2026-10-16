@@ -39,7 +39,7 @@ public class MissaoRepository {
         m.setMeta(rs.getInt("meta_missao"));
         m.setPeriodicidade(rs.getInt("periodicidade_dias"));
         m.setPrazo(rs.getInt("prazo_dias"));
-        m.setImagemId(rs.getLong("tb_imagem_missao_id"));
+        m.setImagemId(rs.getLong("imagem_missao_id"));
 
 
         TipoMissao tipo = new TipoMissao();
@@ -52,7 +52,7 @@ public class MissaoRepository {
     };
 
     public long cadastrar(int pontos, String nome, TipoMissao tipo, String descricao, double meta, int periodicidade, int prazo, long imagemId){
-        String sql = "INSERT INTO tb_missao (pontos_missao, titulo, tipo_missao_id, descricao, meta_missao, periodicidade_dias, prazo_dias, tb_imagem_missao_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tb_missao (pontos_missao, titulo, tipo_missao_id, descricao, meta_missao, periodicidade_dias, prazo_dias, imagem_missao_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(con -> {
@@ -76,7 +76,7 @@ public class MissaoRepository {
         String sql = """
                 SELECT
                     m.missao_id, m.pontos_missao, m.titulo, m.descricao,
-                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.tb_imagem_missao_id,
+                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.imagem_missao_id,
                     t.tipo_missao_id, t.nome AS tipo_nome, t.descricao AS tipo_descricao, t.unidade_medida AS tipo_unidade_medida
                 FROM tb_missao m
                 INNER JOIN tb_tipo_missao t ON m.tipo_missao_id = t.tipo_missao_id
@@ -94,7 +94,7 @@ public class MissaoRepository {
         String sql = """
                 SELECT
                     m.missao_id, m.pontos_missao, m.titulo, m.descricao,
-                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.tb_imagem_missao_id,
+                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.imagem_missao_id,
                     t.tipo_missao_id, t.nome AS tipo_nome, t.descricao AS tipo_descricao, t.unidade_medida AS tipo_unidade_medida
                 FROM tb_missao m
                 INNER JOIN tb_tipo_missao t ON m.tipo_missao_id = t.tipo_missao_id
@@ -119,7 +119,7 @@ public class MissaoRepository {
         String sql = """
                 SELECT
                     m.missao_id, m.pontos_missao, m.titulo, m.descricao,
-                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.tb_imagem_missao_id,
+                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.imagem_missao_id,
                     t.tipo_missao_id, t.nome AS tipo_nome, t.descricao AS tipo_descricao, t.unidade_medida AS tipo_unidade_medida
                 FROM tb_missao m
                 INNER JOIN tb_tipo_missao t ON m.tipo_missao_id = t.tipo_missao_id
@@ -140,7 +140,7 @@ public class MissaoRepository {
     }
 
     public Map<String, Object> buscarImagem(long imagemId) {
-        String sql = "SELECT dados_imagem, tipo_mime FROM tb_imagem_missao WHERE tb_imagem_missao_id = ?";
+        String sql = "SELECT dados_imagem, tipo_mime FROM tb_imagem_missao WHERE imagem_missao_id = ?";
         List<Map<String, Object>> resultados = jdbcTemplate.queryForList(sql, imagemId);
         if (resultados.isEmpty()) {
             throw new UnableToFindEntityException("Imagem não incontrada. ID: " + imagemId);
@@ -154,7 +154,7 @@ public class MissaoRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update( con ->{
-            PreparedStatement ps = con.prepareStatement(sql, new String[]{"tb_imagem_missao_id"});
+            PreparedStatement ps = con.prepareStatement(sql, new String[]{"imagem_missao_id"});
             ps.setBytes(1, dadosImagem);
             ps.setString(2, tipoMime);
             return ps;
