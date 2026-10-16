@@ -1,7 +1,7 @@
 package br.com.soulmove.controller.Dto;
 
 import br.com.soulmove.model.Missao;
-import br.com.soulmove.model.type.TipoMissao;
+import br.com.soulmove.model.TipoMissao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +12,12 @@ public class MissaoDtoMapper {
         return new MissaoResponseDto(
                 missao.getId(),
                 missao.getTitulo(),
-                missao.getTipo().getTipo(),
+                missao.getTipo().getNome(),
                 missao.getDescricao(),
-                missao.getPontos()
+                missao.getPontos(),
+                missao.getMeta(),
+                missao.getPeriodicidade(),
+                missao.getPrazo()
         );
     }
 
@@ -30,7 +33,7 @@ public class MissaoDtoMapper {
     public static Missao toEntity(MissaoRequestDto missaoRequest){
         return new Missao(
                 missaoRequest.titulo(),
-                TipoMissao.getTipoMissao(missaoRequest.tipo()),
+                new TipoMissao(missaoRequest.nomeTipo()),
                 missaoRequest.descricao(),
                 missaoRequest.pontos()
         );

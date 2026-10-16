@@ -41,15 +41,14 @@ public class MissaoResource {
 
     @PostMapping()
     public ResponseEntity<?> cadastrar(@RequestBody MissaoRequestDto missaoDto){
-        Missao missao = MissaoDtoMapper.toEntity(missaoDto);
-        Missao novaMissao = service.cadastrar(missao.getPontos(), missao.getTitulo(), missao.getTipo(), missaoDto.descricao());
+        Missao novaMissao = service.cadastrar(missaoDto.pontos(), missaoDto.titulo(), missaoDto.nomeTipo(), missaoDto.descricao(), missaoDto.meta(), missaoDto.periodicidade(), missaoDto.prazo());
         return ResponseEntity.status(201).body(MissaoDtoMapper.toResponse(novaMissao));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(@PathVariable long id, @RequestBody MissaoRequestDto missaoDto){
         Missao missao = MissaoDtoMapper.toEntity(missaoDto);
-        service.editar(id, missaoDto.pontos(), missao.getTitulo(), missaoDto.descricao(), missao.getTipo());
+        service.editar(id, missaoDto.pontos(), missao.getTitulo(), missaoDto.descricao(), missao.getTipo().getNome());
 
         return ResponseEntity.noContent().build();
     }
