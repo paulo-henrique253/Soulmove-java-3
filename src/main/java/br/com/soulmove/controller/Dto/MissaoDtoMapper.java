@@ -10,7 +10,7 @@ public class MissaoDtoMapper {
 
     public static MissaoResponseDto toResponse(Missao missao){
 
-        String linkImagem = "https://spousal-uptight-shiftless.ngrok-free.dev/api/v1/missao/imagem/" + missao.getImagemId();
+        String linkImagem = "https://soulmove-java-3.onrender.com/api/v1/missao/imagem/" + missao.getImagemId();
         return new MissaoResponseDto(
                 missao.getId(),
                 missao.getTitulo(),
