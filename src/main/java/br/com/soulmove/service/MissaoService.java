@@ -1,6 +1,7 @@
 package br.com.soulmove.service;
 
 import br.com.soulmove.exceptions.BussinesRuleException;
+import br.com.soulmove.exceptions.InvalidDataException;
 import br.com.soulmove.exceptions.UnableToFindEntityException;
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.TipoMissao;
@@ -9,8 +10,11 @@ import br.com.soulmove.repository.TipoMissaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MissaoService {
@@ -58,7 +62,7 @@ public class MissaoService {
 
 
     @Transactional
-    public Missao cadastrar(int pontos, String nome, String nomeTipo, String descricao, double meta, int periodicidade, int prazo){
+    public Missao cadastrar(int pontos, String nome, String nomeTipo, String descricao, double meta, int periodicidade, int prazo, MultipartFile arquivoImagem){
         TipoMissao tipo = tipoRepository.buscar(nomeTipo);
         if (pontos <=0)
             throw new BussinesRuleException("O atributo pontos deve ser maior que 0.");
@@ -69,8 +73,24 @@ public class MissaoService {
         if (descricao.isEmpty())
             throw new BussinesRuleException("A descrição não pode ser vazia.");
 
-        long id =  repository.cadastrar(pontos, nome, tipo, descricao, meta, periodicidade, prazo);
-        return new Missao(id, nome, tipo, descricao, pontos);
+        byte[] dadosImagem;
+        try {
+            dadosImagem = arquivoImagem.getBytes();
+        } catch (IOException e) {
+            throw new InvalidDataException(e.getMessage());
+        }
+
+        String tipoMime = arquivoImagem.getContentType();
+
+        long imagemId = repository.cadastrarImagem(dadosImagem, tipoMime);
+
+        long id =  repository.cadastrar(pontos, nome, tipo, descricao, meta, periodicidade, prazo, imagemId);
+        Missao m = new Missao(id, nome, tipo, descricao, pontos);
+        m.setMeta(meta);
+        m.setPeriodicidade(periodicidade);
+        m.setPrazo(prazo);
+        m.setImagemId(imagemId);
+        return m;
 
     }
 
@@ -80,4 +100,7 @@ public class MissaoService {
         repository.excluir(missaoId);
     }
 
+    public Map<String, Object> buscarImagem(long imagemId) {
+        return repository.buscarImagem(imagemId);
+    }
 }

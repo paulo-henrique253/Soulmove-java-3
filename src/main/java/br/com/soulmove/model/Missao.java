@@ -14,6 +14,7 @@ public class Missao {
     private double meta;
     private int periodicidade; //em dias
     private int prazo; //em dias
+    private long imagemId;
 
     public Missao() {
     }
@@ -103,6 +104,14 @@ public class Missao {
 
     public void setPrazo(int prazo) {
         this.prazo = prazo;
+    }
+
+    public long getImagemId() {
+        return imagemId;
+    }
+
+    public void setImagemId(long imagemId) {
+        this.imagemId = imagemId;
     }
 
     @Override

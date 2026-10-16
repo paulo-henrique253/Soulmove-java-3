@@ -1,6 +1,7 @@
 package br.com.soulmove.repository;
 
 
+import br.com.soulmove.exceptions.UnableToFindEntityException;
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.type.StatusMissao;
@@ -10,6 +11,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -37,6 +39,7 @@ public class MissaoRepository {
         m.setMeta(rs.getInt("meta_missao"));
         m.setPeriodicidade(rs.getInt("periodicidade_dias"));
         m.setPrazo(rs.getInt("prazo_dias"));
+        m.setImagemId(rs.getLong("tb_imagem_missao_id"));
 
 
         TipoMissao tipo = new TipoMissao();
@@ -48,19 +51,20 @@ public class MissaoRepository {
         return m;
     };
 
-    public long cadastrar(int pontos, String nome, TipoMissao tipo, String descricao, double meta, int periodicidade, int prazo){
-        String sql = "INSERT INTO tb_missao (pontos_missao, titulo, tipo_missao, descricao, meta_missao, periodicidade_dias, prazo_dias) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    public long cadastrar(int pontos, String nome, TipoMissao tipo, String descricao, double meta, int periodicidade, int prazo, long imagemId){
+        String sql = "INSERT INTO tb_missao (pontos_missao, titulo, tipo_missao_id, descricao, meta_missao, periodicidade_dias, prazo_dias, tb_imagem_missao_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(sql, new String[]{"missao_id"});
             ps.setInt(1, pontos);
             ps.setString(2, nome);
-            ps.setString(3, tipo.getNome());
+            ps.setLong(3, tipo.getId());
             ps.setString(4, descricao);
             ps.setDouble(5, meta);
             ps.setInt(6, periodicidade);
             ps.setInt(7, prazo);
+            ps.setLong(8, imagemId);
             return ps;
         }, keyHolder);
         return keyHolder.getKey().longValue();
@@ -72,7 +76,7 @@ public class MissaoRepository {
         String sql = """
                 SELECT
                     m.missao_id, m.pontos_missao, m.titulo, m.descricao,
-                    m.meta_missao, m.periodicidade_dias, m.prazo_dias,
+                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.tb_imagem_missao_id,
                     t.tipo_missao_id, t.nome AS tipo_nome, t.descricao AS tipo_descricao, t.unidade_medida AS tipo_unidade_medida
                 FROM tb_missao m
                 INNER JOIN tb_tipo_missao t ON m.tipo_missao_id = t.tipo_missao_id
@@ -90,7 +94,7 @@ public class MissaoRepository {
         String sql = """
                 SELECT
                     m.missao_id, m.pontos_missao, m.titulo, m.descricao,
-                    m.meta_missao, m.periodicidade_dias, m.prazo_dias,
+                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.tb_imagem_missao_id,
                     t.tipo_missao_id, t.nome AS tipo_nome, t.descricao AS tipo_descricao, t.unidade_medida AS tipo_unidade_medida
                 FROM tb_missao m
                 INNER JOIN tb_tipo_missao t ON m.tipo_missao_id = t.tipo_missao_id
@@ -115,7 +119,7 @@ public class MissaoRepository {
         String sql = """
                 SELECT
                     m.missao_id, m.pontos_missao, m.titulo, m.descricao,
-                    m.meta_missao, m.periodicidade_dias, m.prazo_dias,
+                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.tb_imagem_missao_id,
                     t.tipo_missao_id, t.nome AS tipo_nome, t.descricao AS tipo_descricao, t.unidade_medida AS tipo_unidade_medida
                 FROM tb_missao m
                 INNER JOIN tb_tipo_missao t ON m.tipo_missao_id = t.tipo_missao_id
@@ -133,5 +137,30 @@ public class MissaoRepository {
     public int excluirDependencias(long id){
         String sql = "DELETE FROM tb_usuario_missao WHERE missao_id = ?";
         return jdbcTemplate.update(sql, id);
+    }
+
+    public Map<String, Object> buscarImagem(long imagemId) {
+        String sql = "SELECT dados_imagem, tipo_mime FROM tb_imagem_missao WHERE tb_imagem_missao_id = ?";
+        List<Map<String, Object>> resultados = jdbcTemplate.queryForList(sql, imagemId);
+        if (resultados.isEmpty()) {
+            throw new UnableToFindEntityException("Imagem não incontrada. ID: " + imagemId);
+        }
+
+        return resultados.get(0);
+    }
+
+    public long cadastrarImagem(byte[] dadosImagem, String tipoMime) {
+        String sql = "INSERT INTO tb_imagem_missao (dados_imagem, tipo_mime) VALUES(?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update( con ->{
+            PreparedStatement ps = con.prepareStatement(sql, new String[]{"tb_imagem_missao_id"});
+            ps.setBytes(1, dadosImagem);
+            ps.setString(2, tipoMime);
+            return ps;
+        }, keyHolder);
+        return keyHolder.getKey().longValue();
+
+
     }
 }
