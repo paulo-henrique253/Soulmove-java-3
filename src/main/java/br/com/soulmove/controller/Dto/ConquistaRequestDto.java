@@ -1,4 +1,4 @@
 package br.com.soulmove.controller.Dto;
 
-public record ConquistaRequestDto (String nome, String titulo, int pontos, String descricao){
+public record ConquistaRequestDto (String nome, String titulo, int pontos, String descricao, double meta, String nomeTipo){
 }

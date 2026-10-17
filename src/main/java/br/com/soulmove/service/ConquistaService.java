@@ -56,6 +56,11 @@ public class ConquistaService {
         c.setNome(nome);
         c.setTitulo(titulo);
         c.setDescricao(descricao);
+        c.setMeta(meta);
+
+        TipoConquista t = new TipoConquista();
+        t.setNome(nomeTipo);
+        c.setTipo(t);
 
         return c;
     }

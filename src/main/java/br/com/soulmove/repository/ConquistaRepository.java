@@ -42,15 +42,22 @@ public class ConquistaRepository {
     }
 
     public long cadastrar(int pontos, String nome, String titulo, String descricao,double meta, String nomeTipo){
-        String sql = "INSERT INTO tb_conquista (pontos, nome, titulo, descricao, tipo_missao_id) VALUES (?, ?, ?, ?, (SELECT tipo_conquista_id FROM tb_tipo_conquista WHERE nome = ?)))";
+        String sql = """
+                INSERT INTO TB_CONQUISTA (tipo_conquista_id, meta ,nome, titulo, descricao, pontos)
+                    VALUES ((SELECT tipo_conquista_id FROM TB_TIPO_CONQUISTA WHERE nome = ?),
+                            ?, ?, ?, ?, ?)
+                """;
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(sql, new String[]{"conquista_id"});
-            ps.setInt(1, pontos);
-            ps.setString(2, nome);
-            ps.setString(3, titulo);
-            ps.setString(4, descricao);
-            ps.setString(5, nomeTipo);
+
+            ps.setString(1, nomeTipo);
+            ps.setDouble(2, meta);
+            ps.setString(3, nome);
+            ps.setString(4, titulo);
+            ps.setString(5, descricao);
+            ps.setInt(6, pontos);
+
             return ps;
         }, keyHolder);
         return keyHolder.getKey().longValue();

@@ -41,8 +41,7 @@ public class ConquistaResource {
 
     @PostMapping()
     public ResponseEntity<?> cadastrar(@RequestBody ConquistaRequestDto conquistaDto){
-        Conquista conquista = ConquistaDtoMapper.toEntity(conquistaDto);
-        Conquista novaConquista = service.cadastrar(conquista.getPontos(), conquista.getNome(), conquista.getTitulo(), conquistaDto.descricao());
+        Conquista novaConquista = service.cadastrar(conquistaDto.pontos(), conquistaDto.nome(), conquistaDto.titulo(), conquistaDto.descricao(), conquistaDto.meta(), conquistaDto.nomeTipo());
         return ResponseEntity.status(201).body(ConquistaDtoMapper.toResponse(novaConquista));
     }
 

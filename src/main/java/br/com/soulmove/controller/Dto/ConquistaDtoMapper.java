@@ -12,7 +12,10 @@ public class ConquistaDtoMapper {
                 conquista.getNome(),
                 conquista.getTitulo(),
                 conquista.getPontos(),
-                conquista.getDescricao()
+                conquista.getDescricao(),
+                conquista.getMeta(),
+                conquista.getTipo().getNome(),
+                0
                 );
     }
 
