@@ -8,6 +8,8 @@ public class Conquista {
     private String descricao;
     private String titulo;
     private int pontos;
+    private double meta;
+    private TipoConquista tipo;
     private LocalDate dataConclusao; // guarda a data de conclusão para conquistas obtidas a partir de um usuario que as completou
 
     public Conquista() {
@@ -74,6 +76,22 @@ public class Conquista {
 
     public void setDataConclusao(LocalDate dataConclusao) {
         this.dataConclusao = dataConclusao;
+    }
+
+    public double getMeta() {
+        return meta;
+    }
+
+    public void setMeta(double meta) {
+        this.meta = meta;
+    }
+
+    public TipoConquista getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoConquista tipo) {
+        this.tipo = tipo;
     }
 
     @Override

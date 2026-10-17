@@ -3,6 +3,7 @@ package br.com.soulmove.service;
 import br.com.soulmove.exceptions.BussinesRuleException;
 import br.com.soulmove.exceptions.UnableToFindEntityException;
 import br.com.soulmove.model.Conquista;
+import br.com.soulmove.model.TipoConquista;
 import br.com.soulmove.repository.ConquistaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class ConquistaService {
 
 
     @Transactional
-    public Conquista cadastrar(int pontos, String nome, String titulo, String descricao){
+    public Conquista cadastrar(int pontos, String nome, String titulo, String descricao, double meta, String nomeTipo){
         if (pontos <=0)
             throw new BussinesRuleException("O atributo pontos deve ser maior que 0.");
 
@@ -45,7 +46,10 @@ public class ConquistaService {
 
         if (descricao.isEmpty())
             throw new BussinesRuleException("A descrição não pode ser vazia.");
-        long id = repository.cadastrar(pontos, nome, titulo, descricao);
+
+
+
+        long id = repository.cadastrar(pontos, nome, titulo, descricao, meta, nomeTipo);
         Conquista c = new Conquista();
         c.setId(id);
         c.setPontos(pontos);
