@@ -1,6 +1,7 @@
 package br.com.soulmove.repository;
 
 
+import br.com.soulmove.exceptions.BussinesRuleException;
 import br.com.soulmove.exceptions.UnableToFindEntityException;
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.UsuarioSoulMove;
@@ -81,12 +82,8 @@ public class MissaoRepository {
                 FROM tb_missao m
                 INNER JOIN tb_tipo_missao t ON m.tipo_missao_id = t.tipo_missao_id
                 """;
-        try{
-            return jdbcTemplate.query(sql, missaoMapper);
 
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
-        }
+            return jdbcTemplate.query(sql, missaoMapper);
     }
 
 
@@ -128,10 +125,10 @@ public class MissaoRepository {
         return jdbcTemplate.query(sql, missaoMapper, usuarioId);
     }
 
-    public void completar(UsuarioSoulMove usuario, Missao missao){
-        String sql = "INSERT INTO tb_usuario_missao (status_missao, pontuacao_recebida, usuario_id, missao_id) VALUES (?, ?, ?, ?)";
+    public void completar(long usuarioId, long missaoId){
+        String sql = "UPDATE tb_usuario_missao SET status_missao = ?, pontuacao_recebida = (SELECT pontos_missao FROM tb_missao WHERE missao_id = ?), data_conclusao = SYSDATE WHERE missao_id = ? AND usuario_id = ?";
 
-        jdbcTemplate.update(sql, StatusMissao.CONCLUIDA.getStatus(), missao.getPontos(), usuario.getId(), missao.getId());
+        jdbcTemplate.update(sql, StatusMissao.CONCLUIDA.getStatus(), missaoId, missaoId, usuarioId);
     }
 
     public int excluirDependencias(long id){
@@ -162,5 +159,24 @@ public class MissaoRepository {
         return keyHolder.getKey().longValue();
 
 
+    }
+
+    public List<Missao> buscarPendentes(long usuarioId) {
+        String sql = """ 
+                SELECT
+                    m.missao_id, m.pontos_missao, m.titulo, m.descricao,
+                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.imagem_missao_id,
+                    t.tipo_missao_id, t.nome AS tipo_nome, t.descricao AS tipo_descricao, t.unidade_medida AS tipo_unidade_medida
+                    FROM TB_USUARIO u
+                        INNER JOIN TB_USUARIO_MISSAO um
+                            ON u.usuario_id = um.usuario_id
+                        INNER JOIN TB_MISSAO m ON m.missao_id = um.missao_id
+                        INNER JOIN TB_tipo_missao t ON m.tipo_missao_id = t.tipo_missao_id
+                        WHERE um.status_missao IN ('pendente', 'em andamento')
+                        AND u.usuario_id = ?
+                """;
+        List<Missao> missoes = jdbcTemplate.query(sql, missaoMapper, usuarioId);
+        if (missoes.isEmpty()) throw new BussinesRuleException("TA VAZIO VEY");
+        return missoes;
     }
 }

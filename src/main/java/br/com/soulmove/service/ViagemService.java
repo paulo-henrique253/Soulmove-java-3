@@ -1,6 +1,7 @@
 package br.com.soulmove.service;
 
 import br.com.soulmove.api.CalculadorDeRotas;
+import br.com.soulmove.exceptions.BussinesRuleException;
 import br.com.soulmove.exceptions.InvalidDataException;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.Viagem;
@@ -17,18 +18,23 @@ import java.util.List;
 public class ViagemService {
     private final ViagemRepository repository;
     private final UsuarioRepository usuarioRepository;
+    private final MissaoService missaoService;
 
     @Autowired
-    public ViagemService(ViagemRepository repository, UsuarioRepository usuarioRepository) {
+    public ViagemService(ViagemRepository repository, UsuarioRepository usuarioRepository, MissaoService missaoService) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
+        this.missaoService = missaoService;
     }
 
     @Transactional
     public Viagem viajar(String origem, String destino, Veiculo veiculo, long usuarioId){
         Viagem v = simularViagem(origem, destino, veiculo);
         UsuarioSoulMove usuario = usuarioRepository.buscar(usuarioId);
-        return repository.registrar(origem, destino, veiculo, v.getKmPercorrido(), v.getCarbonoEconomizado(), v.getCarbonoEmitido(), usuario);
+        Viagem viagemRegistrada = repository.registrar(origem, destino, veiculo, v.getKmPercorrido(), v.getCarbonoEconomizado(), v.getCarbonoEmitido(), usuario);
+
+        missaoService.verificarConcluidas(usuarioId);
+        return viagemRegistrada;
     }
 
     public List<Viagem> obterHistorico(long usuarioId){

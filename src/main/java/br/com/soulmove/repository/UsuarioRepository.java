@@ -1,6 +1,8 @@
 package br.com.soulmove.repository;
 
+import br.com.soulmove.exceptions.BussinesRuleException;
 import br.com.soulmove.model.Conquista;
+import br.com.soulmove.model.UsuarioHistorico;
 import br.com.soulmove.model.UsuarioSoulMove;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -52,12 +54,22 @@ public class UsuarioRepository {
         return u;
     };
 
-    public UsuarioSoulMove cadastrar(String nome, String email, String senha){
-        String sql = "INSERT INTO TB_USUARIO(nome, email, senha) VALUES(?, ?, ?)";
+    RowMapper<UsuarioHistorico> historicoMapper = (rs, rowNum) ->{
+        UsuarioHistorico h = new UsuarioHistorico();
+        h.setKgC02(rs.getDouble("kg_CO2"));
+        h.setMissoesConcluidas(rs.getInt("missoes"));
+        h.setTrajetosLongos(rs.getInt("trajetos"));
 
+        return h;
+    };
+
+
+    public UsuarioSoulMove cadastrar(String nome, String email, String senha){
+        String sql = "INSERT INTO TB_USUARIO (nome, email, senha) VALUES(?, ?, ?)";
+        LocalDate data = LocalDate.now();
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(sql, new String[] { "USUARIO_ID" , "DATA_CADASTRO"});
+            PreparedStatement ps = con.prepareStatement(sql, new String[] { "USUARIO_ID"});
             ps.setString(1, nome);
             ps.setString(2, email);
             ps.setString(3, senha);
@@ -65,16 +77,10 @@ public class UsuarioRepository {
             return ps;
         }, keyHolder);
 
-        Map<String, Object> chaves = keyHolder.getKeys();
-        if (chaves != null && !chaves.isEmpty()){
-            long id = ((Number) chaves.get("USUARIO_ID")).longValue();
-            LocalDate data = ((Date) chaves.get("DATA_CADASTRO")).toLocalDate();
+        long id = keyHolder.getKey().longValue();
 
-
-            UsuarioSoulMove u = new UsuarioSoulMove(id, nome, 0, email,data, senha);
-            return u;
-        }
-        throw new RuntimeException("Impossivel obter as chaves geradas para o usuario");
+        UsuarioSoulMove u = new UsuarioSoulMove(id, nome, 0, email,data, senha);
+        return u;
 
 
     }
@@ -125,6 +131,11 @@ public class UsuarioRepository {
     public int alterarPontos(UsuarioSoulMove usuario, int pontos){
         String sql = "UPDATE tb_usuario SET pontos = ? WHERE usuario_id = ?";
         return jdbcTemplate.update(sql, pontos, usuario.getId());
+    }
+
+    public UsuarioHistorico buscarHistorico(long id) {
+        String sql = "SELECT kg_CO2, trajetos, missoes FROM VW_USUARIO_HISTORICO WHERE usuario_id = ?";
+        return jdbcTemplate.queryForObject(sql, historicoMapper , id);
     }
 
 }

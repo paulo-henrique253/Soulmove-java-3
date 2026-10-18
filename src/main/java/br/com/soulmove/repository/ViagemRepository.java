@@ -1,5 +1,6 @@
 package br.com.soulmove.repository;
 
+import br.com.soulmove.exceptions.BussinesRuleException;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.model.Viagem;
 import br.com.soulmove.model.type.Veiculo;
@@ -50,10 +51,11 @@ public class ViagemRepository {
     };
 
     public Viagem registrar(String origem, String destino, Veiculo tipoVeiculo, double kmPercorrido, double carbonoEconomizado, double carbonoEmitido, UsuarioSoulMove usuario){
-        String sql = "INSERT INTO tb_viagem (origem, destino, tipo_veiculo, km_percorrido, carbono_economizado, carbono_emitido, usuario_id) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tb_viagem (origem, destino, tipo_veiculo_id, km_percorrido, carbono_economizado, carbono_emitido, usuario_id) VALUES (?, ?, (SELECT tipo_veiculo_id FROM tb_tipo_veiculo WHERE nome = ?), ?, ?, ?, ?)";
+        LocalDate data = LocalDate.now();
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con ->{
-            PreparedStatement ps = con.prepareStatement(sql, new String[] {"VIAGEM_ID", "DATA_VIAGEM"});
+            PreparedStatement ps = con.prepareStatement(sql, new String[] {"VIAGEM_ID"});
             ps.setString(1, origem);
             ps.setString(2, destino);
             ps.setString(3,tipoVeiculo.getVeiculo());
@@ -62,25 +64,21 @@ public class ViagemRepository {
             ps.setDouble(6, OracleErrorParser.adjustPrecision(carbonoEmitido, 2));
             ps.setLong(7, usuario.getId());
             return ps;
-        });
+        }, keyHolder);
+        long id = keyHolder.getKey().longValue();
 
-        Map<String, Object> chaves = keyHolder.getKeys();
-        if (chaves != null && !chaves.isEmpty()){
-            Viagem v = new Viagem();
-            long id = ((Number) chaves.get("VIAGEM_ID")).longValue();
-            v.setId(id);
-            v.setOrigem(origem);
-            v.setDestino(destino);
-            v.setTipoVeiculo(tipoVeiculo);
-            v.setKmPercorrido(kmPercorrido);
-            v.setCarbonoEconomizado(carbonoEconomizado);
-            v.setCarbonoEmitido(carbonoEconomizado);
-            LocalDate data = ((Date) chaves.get("DATA_VIAGEM")).toLocalDate();
-            v.setData(data);
-            v.setUsuario(usuario);
-            return v;
-        }
-        throw new RuntimeException("Impossivel gerar as chaves de Viagem");
+        Viagem v = new Viagem();
+        v.setId(id);
+        v.setOrigem(origem);
+        v.setDestino(destino);
+        v.setTipoVeiculo(tipoVeiculo);
+        v.setKmPercorrido(kmPercorrido);
+        v.setCarbonoEconomizado(carbonoEconomizado);
+        v.setCarbonoEmitido(carbonoEconomizado);
+        v.setData(data);
+        v.setUsuario(usuario);
+        return v;
+
     }
 
     public List<Viagem> buscarHistorico(long usuarioId){

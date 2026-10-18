@@ -5,6 +5,8 @@ import br.com.soulmove.exceptions.InvalidDataException;
 import br.com.soulmove.exceptions.UnableToFindEntityException;
 import br.com.soulmove.model.Missao;
 import br.com.soulmove.model.TipoMissao;
+import br.com.soulmove.model.UsuarioHistorico;
+import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.repository.MissaoRepository;
 import br.com.soulmove.repository.TipoMissaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,13 @@ import java.util.Map;
 public class MissaoService {
     private final MissaoRepository repository;
     private final TipoMissaoRepository tipoRepository;
+    private final UsuarioService usuarioService;
 
     @Autowired
-    public MissaoService(MissaoRepository repository, TipoMissaoRepository tipoRepository) {
+    public MissaoService(MissaoRepository repository, TipoMissaoRepository tipoRepository, UsuarioService usuarioService) {
         this.repository = repository;
         this.tipoRepository = tipoRepository;
+        this.usuarioService = usuarioService;
     }
 
     public List<Missao> buscarMissoes(){
@@ -103,4 +107,37 @@ public class MissaoService {
     public Map<String, Object> buscarImagem(long imagemId) {
         return repository.buscarImagem(imagemId);
     }
+
+    @Transactional
+    public void completarMissao(long usuarioId, long missaoId){
+        repository.completar(usuarioId, missaoId);
+        verificarConcluidas(usuarioId);
+    }
+
+    public int verificarConcluidas(long usuarioId){
+
+        List<Missao> pendentes = repository.buscarPendentes(usuarioId);
+
+        UsuarioHistorico historico = usuarioService.buscarHistorico(usuarioId);
+        pendentes.removeIf(missao -> !isConcluida(missao, historico));
+
+
+        for (Missao m : pendentes) {
+            completarMissao(usuarioId, m.getId());
+        }
+        return pendentes.size();
+    }
+
+    private boolean isConcluida(Missao missao, UsuarioHistorico historico) {
+        TipoMissao tipo = missao.getTipo();
+
+        switch (tipo.getUnidadeMedida()){
+            case "kg_C02": return (historico.getKgC02() >= missao.getMeta());
+            case "missoes": return (historico.getMissoesConcluidas() >= missao.getMeta());
+            case "trajetos": return (historico.getTrajetosLongos() >= missao.getMeta());
+        }
+
+        throw new BussinesRuleException("Tipo Missão com unidadeMedida irreconhecivel: " + tipo.getUnidadeMedida());
+    }
+
 }

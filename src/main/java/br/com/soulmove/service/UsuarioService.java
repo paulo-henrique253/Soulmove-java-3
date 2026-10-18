@@ -4,6 +4,7 @@ import br.com.soulmove.exceptions.BussinesRuleException;
 import br.com.soulmove.exceptions.InvalidDataException;
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.Missao;
+import br.com.soulmove.model.UsuarioHistorico;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.repository.ConquistaRepository;
 import br.com.soulmove.repository.MissaoRepository;
@@ -68,15 +69,6 @@ public class UsuarioService {
 
     }
 
-    @Transactional
-    public void completarMissao(UsuarioSoulMove usuario, Missao missao){
-        missaoRepository.completar(usuario, missao);
-
-        aumentarPontos(usuario, missao.getPontos());
-        usuario.adicionarMissaoConcluida(missao);
-
-
-    }
 
     @Transactional
     public void completarConquista(UsuarioSoulMove usuario, Conquista conquista){
@@ -121,4 +113,7 @@ public class UsuarioService {
     }
 
 
+    public UsuarioHistorico buscarHistorico(long id) {
+        return repository.buscarHistorico(id);
+    }
 }
