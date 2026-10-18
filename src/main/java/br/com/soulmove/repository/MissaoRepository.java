@@ -176,7 +176,6 @@ public class MissaoRepository {
                         AND u.usuario_id = ?
                 """;
         List<Missao> missoes = jdbcTemplate.query(sql, missaoMapper, usuarioId);
-        if (missoes.isEmpty()) throw new BussinesRuleException("TA VAZIO VEY");
         return missoes;
     }
 }

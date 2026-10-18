@@ -63,19 +63,17 @@ public class UsuarioService {
     @Transactional
     public void alterarTitulo(UsuarioSoulMove usuario, Conquista conquista){
 
-        repository.alterarConquista(usuario, conquista);
+        repository.alterarConquista(usuario.getId(), conquista.getId());
 
         usuario.setTituloAtual(conquista);
 
     }
 
-
     @Transactional
-    public void completarConquista(UsuarioSoulMove usuario, Conquista conquista){
-        conquistaRepository.completar(usuario, conquista);
+    public void alterarTitulo(long usuarioId, long conquistaId){
 
-        aumentarPontos(usuario, conquista.getPontos());
-        usuario.adicionarConquistaConcluida(conquista);
+        repository.alterarConquista(usuarioId, conquistaId);
+
     }
 
     @Transactional

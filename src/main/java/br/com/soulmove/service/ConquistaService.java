@@ -2,8 +2,7 @@ package br.com.soulmove.service;
 
 import br.com.soulmove.exceptions.BussinesRuleException;
 import br.com.soulmove.exceptions.UnableToFindEntityException;
-import br.com.soulmove.model.Conquista;
-import br.com.soulmove.model.TipoConquista;
+import br.com.soulmove.model.*;
 import br.com.soulmove.repository.ConquistaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +13,12 @@ import java.util.List;
 @Service
 public class ConquistaService {
     private final ConquistaRepository repository;
+    private final UsuarioService usuarioService;
 
     @Autowired
-    public ConquistaService(ConquistaRepository repository) {
+    public ConquistaService(ConquistaRepository repository, UsuarioService usuarioService) {
         this.repository = repository;
+        this.usuarioService = usuarioService;
     }
 
     public List<Conquista> buscarConquistas(){
@@ -87,4 +88,37 @@ public class ConquistaService {
         int retorno = repository.editar(id, pontos, nome, titulo, descricao);
         if (retorno == 0) throw new UnableToFindEntityException("Conquista não encontrada. Id: " + id);
     }
+
+
+    @Transactional
+    public void completarConquista(long usuarioId, long conquistaId){
+        repository.completar(usuarioId, conquistaId);
+    }
+
+    public int verificarConcluidas(long usuarioId){
+
+        List<Conquista> pendentes = repository.buscarPendentes(usuarioId);
+
+        UsuarioHistorico historico = usuarioService.buscarHistorico(usuarioId);
+        pendentes.removeIf(conquista -> !isConcluida(conquista, historico));
+
+
+        for (Conquista c : pendentes) {
+            completarConquista(usuarioId, c.getId());
+        }
+        return pendentes.size();
+    }
+
+    private boolean isConcluida(Conquista conquista, UsuarioHistorico historico) {
+        TipoConquista tipo = conquista.getTipo();
+
+        switch (tipo.getUnidadeMedida()){
+            case "Transporte Público": return (historico.getTrajetosLongos() >= conquista.getMeta());
+            case "Carbono Economizado": return (historico.getKgC02() >= conquista.getMeta());
+            case "Missões": return (historico.getMissoesConcluidas() >= conquista.getMeta());
+        }
+
+        throw new BussinesRuleException("Tipo Conquista com unidadeMedida irreconhecivel: " + tipo.getUnidadeMedida());
+    }
+
 }

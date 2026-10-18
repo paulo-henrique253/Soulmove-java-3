@@ -31,10 +31,11 @@ public class ViagemResource {
     }
 
 
-    @PostMapping("/simular/")
+    @PostMapping("/simular")
     public ResponseEntity<?> simularViagem(@RequestBody ViagemRequestDto dto){
         Viagem retorno = service.simularViagem(dto.origem(), dto.destino(), Veiculo.getTipoVeiculo(dto.veiculo()));
-        return ResponseEntity.ok(retorno);
+        ViagemResponseDto dtoResponse = ViagemDtoMapper.toResponse(retorno);
+        return ResponseEntity.ok(dtoResponse);
     }
 
     @PostMapping()

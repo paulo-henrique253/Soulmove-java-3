@@ -19,12 +19,14 @@ public class ViagemService {
     private final ViagemRepository repository;
     private final UsuarioRepository usuarioRepository;
     private final MissaoService missaoService;
+    private final ConquistaService conquistaService;
 
     @Autowired
-    public ViagemService(ViagemRepository repository, UsuarioRepository usuarioRepository, MissaoService missaoService) {
+    public ViagemService(ViagemRepository repository, UsuarioRepository usuarioRepository, MissaoService missaoService, ConquistaService conquistaService) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
         this.missaoService = missaoService;
+        this.conquistaService = conquistaService;
     }
 
     @Transactional
@@ -34,6 +36,7 @@ public class ViagemService {
         Viagem viagemRegistrada = repository.registrar(origem, destino, veiculo, v.getKmPercorrido(), v.getCarbonoEconomizado(), v.getCarbonoEmitido(), usuario);
 
         missaoService.verificarConcluidas(usuarioId);
+        conquistaService.verificarConcluidas(usuarioId);
         return viagemRegistrada;
     }
 

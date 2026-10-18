@@ -74,7 +74,7 @@ public class ViagemRepository {
         v.setTipoVeiculo(tipoVeiculo);
         v.setKmPercorrido(kmPercorrido);
         v.setCarbonoEconomizado(carbonoEconomizado);
-        v.setCarbonoEmitido(carbonoEconomizado);
+        v.setCarbonoEmitido(carbonoEmitido);
         v.setData(data);
         v.setUsuario(usuario);
         return v;

@@ -111,10 +111,23 @@ public class ConquistaRepository {
         return jdbcTemplate.query(sql, conquistaMapper, usuarioId);
     }
 
-    public void completar(UsuarioSoulMove usuario, Conquista conquista){
+    public List<Conquista> buscarPendentes(long usuarioId){
+        String sql = """
+                SELECT
+                    c.conquista_id, c.pontos, c.nome, c.titulo, c.descricao, c.meta,
+                    t.tipo_conquista_id, t.nome AS tipo_nome, t.descricao AS tipo_descricao, t.unidade_medida
+                FROM tb_conquista c
+                INNER JOIN tb_tipo_conquista t ON t.tipo_conquista_id = c.tipo_conquista_id
+                WHERE c.conquista_id NOT IN (SELECT DISTINCT conquista_id FROM tb_usuario_conquista WHERE usuario_id = ?)                
+                """;
+        return jdbcTemplate.query(sql, conquistaMapper, usuarioId);
+    }
 
-        String sql = "INSERT INTO tb_usuario_conquista (usuario_id, conquista_id) VALUES (?, ?)";
-        jdbcTemplate.update(sql, usuario.getId(), conquista.getId());
+
+    public void completar(long usuarioId, long conquistaId){
+
+        String sql = "INSERT INTO tb_usuario_conquista (usuario_id, conquista_id, pontuacao_recebida, flag_titulo_atual) VALUES (?, ?, (SELECT pontos FROM tb_conquista WHERE conquista_id = ?), 'N')";
+        jdbcTemplate.update(sql, usuarioId, conquistaId, conquistaId);
     }
 
     public void excluirDependencias(long conquistaId){

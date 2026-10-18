@@ -1,6 +1,7 @@
 package br.com.soulmove.repository;
 
 import br.com.soulmove.exceptions.BussinesRuleException;
+import br.com.soulmove.model.CarteiraUsuario;
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.model.UsuarioHistorico;
 import br.com.soulmove.model.UsuarioSoulMove;
@@ -37,6 +38,13 @@ public class UsuarioRepository {
         UsuarioSoulMove u = new UsuarioSoulMove(usuarioId, usuarioNome, usuarioPontos , usuarioEmail, usuarioDataCadastro, usuarioSenha);
 
 
+        //carteira
+        long carteiraId = rs.getLong("carteira_id");
+        double saldo = rs.getDouble("saldo_mobilidade");
+        CarteiraUsuario ca = new CarteiraUsuario(carteiraId, saldo);
+
+        u.setCarteira(ca);
+
         //conquista
         Long conquistaId = rs.getObject("conquista_id", Long.class);
         if (conquistaId != null){
@@ -45,7 +53,7 @@ public class UsuarioRepository {
             c.setNome(rs.getString("conquista_nome"));
             c.setTitulo(rs.getString("conquista_titulo"));
             c.setDescricao(rs.getString("conquista_descricao"));
-            //c.setPontos(rs.getInt("conquista_pontos"));
+            c.setPontos(rs.getInt("conquista_pontos"));
             c.setDataConclusao(rs.getDate("conquista_data").toLocalDate());
 
             u.setTituloAtual(c);
@@ -89,8 +97,10 @@ public class UsuarioRepository {
         String sql = """
                 SELECT
                     u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, vw.pontos_totais AS pontos,
-                    c.conquista_id, c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos,  uc.data_conquista AS conquista_data
+                    c.conquista_id, c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos,  uc.data_conquista AS conquista_data,
+                    ca.carteira_id, ca.saldo_mobilidade
                 FROM tb_usuario u
+                LEFT JOIN tb_carteira ca ON ca.usuario_id = u.usuario_id
                 LEFT JOIN tb_usuario_conquista uc
                     ON uc.usuario_id = u.usuario_id
                     AND uc.flag_titulo_atual = 'S'
@@ -105,21 +115,28 @@ public class UsuarioRepository {
         String sql = """
                 SELECT
                     u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, vw.pontos_totais AS pontos,
-                    c.conquista_id, c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos,  uc.data_conquista AS conquista_data
+                    c.conquista_id, c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos,  uc.data_conquista AS conquista_data,
+                    ca.carteira_id, ca.saldo_mobilidade
                 FROM tb_usuario u
+                LEFT JOIN tb_carteira ca ON ca.usuario_id = u.usuario_id
                 LEFT JOIN tb_usuario_conquista uc
                     ON uc.usuario_id = u.usuario_id
                     AND uc.flag_titulo_atual = 'S'
                 LEFT JOIN tb_conquista c ON c.conquista_id = uc.conquista_id
                 LEFT JOIN vw_usuario_resumo vw ON vw.usuario_id = u.usuario_id
-                WHERE u.email = ?;
+                WHERE u.email = ?
             """;
         return jdbcTemplate.queryForObject(sql, usuarioMapper, email);
     }
 
-    public int alterarConquista(UsuarioSoulMove usuario, Conquista conquista){
-        String sql = "UPDATE tb_usuario SET titulo_atual = ? WHERE usuario_id = ?";
-        return jdbcTemplate.update(sql, conquista.getId(), usuario.getId());
+    public int alterarConquista(long usuarioId, long conquistaId){
+        String sql = """
+                UPDATE TB_USUARIO_CONQUISTA
+                    SET flag_titulo_atual = 'S'
+                    WHERE usuario_id = ?
+                    AND conquista_id = ?
+                """;
+        return jdbcTemplate.update(sql, conquistaId, usuarioId);
     }
 
     public int excluir(UsuarioSoulMove usuario){
