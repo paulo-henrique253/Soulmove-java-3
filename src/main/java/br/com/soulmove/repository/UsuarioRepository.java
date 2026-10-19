@@ -145,7 +145,8 @@ public class UsuarioRepository {
     }
 
 
-    public int alterarPontos(UsuarioSoulMove usuario, int pontos){
+    public int alterarPontos(UsuarioSoulMove usuario, int pontos) {
+        if (true)return 0;
         String sql = "UPDATE tb_usuario SET pontos = ? WHERE usuario_id = ?";
         return jdbcTemplate.update(sql, pontos, usuario.getId());
     }

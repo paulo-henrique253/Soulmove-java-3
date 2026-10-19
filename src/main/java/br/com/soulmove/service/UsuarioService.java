@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 @Service
 public class UsuarioService {
     private final double taxaDeConversao = 0.009;
@@ -82,6 +85,20 @@ public class UsuarioService {
             throw new BussinesRuleException("A quantidade de pontos deve ser maior que 0.");
         repository.alterarPontos(usuario, usuario.getPontos() + pontos);
         usuario.setPontos(usuario.getPontos() + pontos);
+    }
+
+    @Transactional
+    public void efetuarPagamento(long usuarioId, BigDecimal valor){
+        UsuarioSoulMove usuario = repository.buscar(usuarioId);
+
+        double valorEmPontos = Math.floor(valor.doubleValue() / taxaDeConversao);
+
+        if (valorEmPontos > usuario.getPontos())
+            throw new BussinesRuleException("Valor a ser pago maior que o equivalente em pontos dispobivel");
+
+
+        repository.alterarPontos(usuario, usuario.getPontos() - Double.valueOf(valorEmPontos).intValue());
+        carteiraService.alterarSaldo(usuario.getCarteira(), valor.doubleValue());
     }
 
     @Transactional
