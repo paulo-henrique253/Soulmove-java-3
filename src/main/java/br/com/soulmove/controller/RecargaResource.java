@@ -1,11 +1,9 @@
 package br.com.soulmove.controller;
 
+import br.com.soulmove.controller.Dto.RecargaRequestDto;
 import br.com.soulmove.service.RecargaService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/recarga")
@@ -16,9 +14,10 @@ public class RecargaResource {
         this.service = service;
     }
 
-    @GetMapping("/verificar-codigo")
-    public ResponseEntity<?> verificarCodigo(@RequestParam("codigo") String codigo){
-        return ResponseEntity.ok(service.verificarCodigo(codigo));
+    @PostMapping("/pix")
+    public ResponseEntity<?> recarregar(@RequestBody RecargaRequestDto dto){
+        service.processarRecargaPix(dto.codigo(), dto.usuarioId());
+        return ResponseEntity.ok("recargaEfetuada");
     }
 
 }

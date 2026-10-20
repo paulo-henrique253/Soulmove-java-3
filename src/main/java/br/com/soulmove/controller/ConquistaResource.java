@@ -7,9 +7,11 @@ import br.com.soulmove.controller.Dto.ConquistaResponseDto;
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.service.ConquistaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -29,12 +31,15 @@ public class ConquistaResource {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> buscar(@PathVariable long id){
+
         ConquistaResponseDto conquistaDto = ConquistaDtoMapper.toResponse(service.buscar(id));
+
         return ResponseEntity.ok(conquistaDto);
     }
 
     @GetMapping("/concluidas/{usuarioId}")
     public ResponseEntity<?> buscarConcluidas(@PathVariable long usuarioId){
+
         List<ConquistaResponseDto> conquistaDtos = ConquistaDtoMapper.toResponse(service.buscarConcluidas(usuarioId));
         return ResponseEntity.ok(conquistaDtos);
     }
@@ -42,7 +47,7 @@ public class ConquistaResource {
     @PostMapping()
     public ResponseEntity<?> cadastrar(@RequestBody ConquistaRequestDto conquistaDto){
         Conquista novaConquista = service.cadastrar(conquistaDto.pontos(), conquistaDto.nome(), conquistaDto.titulo(), conquistaDto.descricao(), conquistaDto.meta(), conquistaDto.nomeTipo());
-        return ResponseEntity.status(201).body(ConquistaDtoMapper.toResponse(novaConquista));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ConquistaDtoMapper.toResponse(novaConquista));
     }
 
     @PutMapping("/{id}")

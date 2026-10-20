@@ -145,11 +145,6 @@ public class UsuarioRepository {
     }
 
 
-    public int alterarPontos(UsuarioSoulMove usuario, int pontos){
-        String sql = "UPDATE tb_usuario SET pontos = ? WHERE usuario_id = ?";
-        return jdbcTemplate.update(sql, pontos, usuario.getId());
-    }
-
     public UsuarioHistorico buscarHistorico(long id) {
         String sql = "SELECT kg_CO2, trajetos, missoes FROM VW_USUARIO_HISTORICO WHERE usuario_id = ?";
         return jdbcTemplate.queryForObject(sql, historicoMapper , id);

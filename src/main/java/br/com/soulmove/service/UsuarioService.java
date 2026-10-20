@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 @Service
 public class UsuarioService {
     private final double taxaDeConversao = 0.009;
@@ -76,40 +79,18 @@ public class UsuarioService {
 
     }
 
-    @Transactional
-    public void aumentarPontos(UsuarioSoulMove usuario, int pontos){
-        if (pontos <= 0)
-            throw new BussinesRuleException("A quantidade de pontos deve ser maior que 0.");
-        repository.alterarPontos(usuario, usuario.getPontos() + pontos);
-        usuario.setPontos(usuario.getPontos() + pontos);
-    }
 
     @Transactional
-    public void resgatarPontos(UsuarioSoulMove usuario, int quantidade){
-        if (quantidade * taxaDeConversao < 10.0)
-            throw new BussinesRuleException("A Quandidade minima de pontos a ser sacada é de R$10,00 em pontos (" +Math.ceil(10.0 /taxaDeConversao)+ " pontos)");
-        if(usuario.getPontos() < quantidade){
-            throw new BussinesRuleException("Quantidade inserida maior que a quantidade de pontos disponivel");
-        }
+    public void efetuarPagamento(long usuarioId, BigDecimal valor){
+        UsuarioSoulMove usuario = repository.buscar(usuarioId);
 
+        double valorEmPontos = Math.floor(valor.doubleValue() / taxaDeConversao);
 
-        int pontos = usuario.getPontos() - quantidade;
+        if (valorEmPontos > usuario.getPontos())
+            throw new BussinesRuleException("Valor a ser pago maior que o equivalente em pontos dispobivel");
 
-        repository.alterarPontos(usuario, pontos);
-        usuario.setPontos(pontos);
-
-        carteiraService.alterarSaldo(usuario.getCarteira(), quantidade * taxaDeConversao);
-
-
-
-
+        carteiraService.alterarSaldo(usuario.getCarteira(), valor.doubleValue());
     }
-
-
-    public void atualizar(UsuarioSoulMove usuario){
-        usuario = repository.buscar(usuario.getId());
-    }
-
 
     public UsuarioHistorico buscarHistorico(long id) {
         return repository.buscarHistorico(id);
