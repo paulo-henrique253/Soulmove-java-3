@@ -130,13 +130,18 @@ public class UsuarioRepository {
     }
 
     public int alterarConquista(long usuarioId, long conquistaId){
+
         String sql = """
                 UPDATE TB_USUARIO_CONQUISTA
                     SET flag_titulo_atual = 'S'
                     WHERE usuario_id = ?
                     AND conquista_id = ?
                 """;
-        return jdbcTemplate.update(sql, conquistaId, usuarioId);
+
+
+        int retorno = jdbcTemplate.update(sql, usuarioId, conquistaId);
+
+        return retorno;
     }
 
     public int excluir(UsuarioSoulMove usuario){

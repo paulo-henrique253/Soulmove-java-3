@@ -5,11 +5,16 @@ import br.com.soulmove.model.UsuarioSoulMove;
 public class UsuarioDtoMapper {
 
     public static UsuarioResponseDto toResponse(UsuarioSoulMove usuario){
+        String titulo;
+        if(usuario.getTituloAtual() != null)
+            titulo = usuario.getTituloAtual().getTitulo();
+        else titulo = null;
         return new UsuarioResponseDto(
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getDataCadastro(),
+                titulo,
                 usuario.getCarteira().getId(),
                 usuario.getPontos(),
                 usuario.getMissoesConcluidas(),

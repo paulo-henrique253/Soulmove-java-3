@@ -1,5 +1,6 @@
 package br.com.soulmove.controller;
 
+import br.com.soulmove.controller.Dto.UsuarioDtoMapper;
 import br.com.soulmove.controller.Dto.UsuarioRequestDto;
 import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.service.UsuarioService;
@@ -30,6 +31,12 @@ public class UsuarioResource {
     public ResponseEntity<?> login(@RequestBody UsuarioRequestDto dto){
         UsuarioSoulMove usuario = service.logar(dto.email(), dto.senha());
         return ResponseEntity.ok(usuario);
+    }
+
+    @PutMapping("/titulo")
+    public ResponseEntity<?> alterarTitulo(@RequestParam long usuarioId, @RequestParam long conquistaId){
+        UsuarioSoulMove usuario = service.alterarTitulo(usuarioId, conquistaId);
+        return ResponseEntity.status(HttpStatus.OK).body(UsuarioDtoMapper.toResponse(usuario));
     }
 
 
