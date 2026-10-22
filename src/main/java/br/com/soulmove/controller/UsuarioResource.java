@@ -27,7 +27,7 @@ public class UsuarioResource {
 
     }
 
-    @GetMapping()
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UsuarioRequestDto dto){
         UsuarioSoulMove usuario = service.logar(dto.email(), dto.senha());
         return ResponseEntity.ok(usuario);

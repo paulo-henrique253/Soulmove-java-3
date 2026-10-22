@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.Instant;
 
@@ -30,6 +32,38 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI()
         );
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<Object> handleNotFound(
+            NoHandlerFoundException ex,
+            HttpServletRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ErrorResponse error = new ErrorResponse(
+                Instant.now(),
+                status.value(),
+                "Endpoint não encontrado",
+                ex.getMessage(),
+                request.getContextPath()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Object> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex,
+            HttpServletRequest request) {
+
+        HttpStatus status = HttpStatus.METHOD_NOT_ALLOWED;
+        ErrorResponse error = new ErrorResponse(
+                Instant.now(),
+                status.value(),
+                "Método HTTP não suportado para este endpoint",
+                ex.getMessage(),
+                request.getContextPath()
+        );
+
         return ResponseEntity.status(status).body(error);
     }
 
