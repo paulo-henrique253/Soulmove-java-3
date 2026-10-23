@@ -88,6 +88,7 @@ public class UsuarioRepository {
         long id = keyHolder.getKey().longValue();
 
         UsuarioSoulMove u = new UsuarioSoulMove(id, nome, 0, email,data, senha);
+        u.setTipo("comum");
         return u;
 
 
