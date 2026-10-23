@@ -11,7 +11,7 @@ public class Conquista {
     private double meta;
     private TipoConquista tipo;
     private LocalDate dataConclusao; // guarda a data de conclusão para conquistas obtidas a partir de um usuario que as completou
-
+    private double progresso; // guarda o progresso atual do usuario na missao
     public Conquista() {
     }
 
@@ -92,6 +92,14 @@ public class Conquista {
 
     public void setTipo(TipoConquista tipo) {
         this.tipo = tipo;
+    }
+
+    public double getProgresso() {
+        return progresso;
+    }
+
+    public void setProgresso(double progresso) {
+        this.progresso = progresso;
     }
 
     @Override

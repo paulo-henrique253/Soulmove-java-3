@@ -10,6 +10,7 @@ public class UsuarioSoulMove extends Usuario {
     private CarteiraUsuario carteira;
     private List<Missao> missoesConcluidas = new ArrayList<>();
     private List<Conquista> conquistasConcluidas = new ArrayList<>();
+    private String tipo;
 
     public UsuarioSoulMove() {
         super();
@@ -56,6 +57,14 @@ public class UsuarioSoulMove extends Usuario {
 
     public void setConquistasConcluidas(List<Conquista> conquistasConcluidas) {
         this.conquistasConcluidas = conquistasConcluidas;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 
     @Override

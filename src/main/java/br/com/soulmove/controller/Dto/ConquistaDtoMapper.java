@@ -15,7 +15,8 @@ public class ConquistaDtoMapper {
                 conquista.getDescricao(),
                 conquista.getMeta(),
                 conquista.getTipo().getNome(),
-                0
+                conquista.getProgresso(),
+                conquista.getDataConclusao()
                 );
     }
 

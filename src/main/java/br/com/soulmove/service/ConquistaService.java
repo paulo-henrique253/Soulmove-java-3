@@ -25,6 +25,15 @@ public class ConquistaService {
         return repository.buscarTodas();
     }
 
+    public  List<Conquista> buscarConquistas(long usuarioId){
+        List<Conquista> conquistas = repository.buscarTodas(usuarioId);
+        UsuarioHistorico historico = usuarioService.buscarHistorico(usuarioId);
+        for (Conquista c : conquistas){
+            c.setProgresso(obterProgresso(c, historico));
+        }
+        return conquistas;
+    }
+
     public List<Conquista> buscarConcluidas(long usuarioId){
         return repository.buscarConcluidas(usuarioId);
     }
@@ -118,6 +127,17 @@ public class ConquistaService {
             case "Missões": return (historico.getMissoesConcluidas() >= conquista.getMeta());
         }
 
+        throw new BussinesRuleException("Tipo Conquista com unidadeMedida irreconhecivel: " + tipo.getUnidadeMedida());
+    }
+
+    private double obterProgresso(Conquista conquista, UsuarioHistorico historico){
+        TipoConquista tipo = conquista.getTipo();
+
+        switch (tipo.getUnidadeMedida()){
+            case "Transporte Público": return historico.getTrajetosLongos();
+            case "Carbono Economizado": return historico.getKgC02();
+            case "Missões": return historico.getMissoesConcluidas();
+        }
         throw new BussinesRuleException("Tipo Conquista com unidadeMedida irreconhecivel: " + tipo.getUnidadeMedida());
     }
 

@@ -36,7 +36,7 @@ public class UsuarioRepository {
         int usuarioPontos = rs.getInt("pontos");
 
         UsuarioSoulMove u = new UsuarioSoulMove(usuarioId, usuarioNome, usuarioPontos , usuarioEmail, usuarioDataCadastro, usuarioSenha);
-
+        u.setTipo(rs.getString("tipo_usuario"));
 
         //carteira
         long carteiraId = rs.getLong("carteira_id");
@@ -96,7 +96,7 @@ public class UsuarioRepository {
     public UsuarioSoulMove buscar(long id){
         String sql = """
                 SELECT
-                    u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, vw.pontos_totais AS pontos,
+                    u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, u.tipo_usuario, vw.pontos_totais AS pontos,
                     c.conquista_id, c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos,  uc.data_conquista AS conquista_data,
                     ca.carteira_id, ca.saldo_mobilidade
                 FROM tb_usuario u
@@ -114,7 +114,7 @@ public class UsuarioRepository {
     public UsuarioSoulMove buscar(String email){
         String sql = """
                 SELECT
-                    u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, vw.pontos_totais AS pontos,
+                    u.usuario_id, u.nome, u.email, u.senha, u.data_cadastro, u.tipo_usuario, vw.pontos_totais AS pontos,
                     c.conquista_id, c.nome AS conquista_nome, c.titulo AS conquista_titulo, c.descricao AS conquista_descricao, c.pontos AS conquista_pontos,  uc.data_conquista AS conquista_data,
                     ca.carteira_id, ca.saldo_mobilidade
                 FROM tb_usuario u

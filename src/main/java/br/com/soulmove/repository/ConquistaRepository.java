@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
 
@@ -25,6 +26,29 @@ public class ConquistaRepository {
         c.setTitulo(rs.getString("titulo"));
         c.setDescricao(rs.getString("descricao"));
         c.setMeta(rs.getDouble("meta"));
+
+        TipoConquista t = new TipoConquista();
+        t.setId(rs.getLong("tipo_conquista_id"));
+        t.setNome(rs.getString("tipo_nome"));
+        t.setDescricao(rs.getString("tipo_descricao"));
+        t.setUnidadeMedida(rs.getString("unidade_medida"));
+
+        c.setTipo(t);
+        return c;
+    };
+
+    private final RowMapper<Conquista> conquistaUsuarioMapper = (rs, rowNum) -> {
+        Conquista c = new Conquista();
+        c.setId(rs.getLong("conquista_id"));
+        c.setNome(rs.getString("nome"));
+        c.setPontos(rs.getInt("pontos"));
+        c.setTitulo(rs.getString("titulo"));
+        c.setDescricao(rs.getString("descricao"));
+        c.setMeta(rs.getDouble("meta"));
+        Date dataConclusao = rs.getObject("data_conquista", Date.class);
+        if (dataConclusao != null)
+            c.setDataConclusao(rs.getDate("data_conquista").toLocalDate());
+
 
         TipoConquista t = new TipoConquista();
         t.setId(rs.getLong("tipo_conquista_id"));
@@ -87,6 +111,18 @@ public class ConquistaRepository {
                 INNER JOIN tb_tipo_conquista t ON t.tipo_conquista_id = c.tipo_conquista_id
                 """;
         return jdbcTemplate.query(sql, conquistaMapper);
+    }
+
+    public List<Conquista> buscarTodas(long usuarioId){
+        String sql = """
+                SELECT
+                    c.conquista_id, c.pontos, c.nome, c.titulo, c.descricao, c.meta, uc.data_conquista,
+                    t.tipo_conquista_id, t.nome AS tipo_nome, t.descricao AS tipo_descricao, t.unidade_medida
+                FROM tb_conquista c
+                LEFT JOIN tb_tipo_conquista t ON t.tipo_conquista_id = c.tipo_conquista_id
+                LEFT JOIN tb_usuario_conquista uc ON uc.conquista_id = c.conquista_id AND uc.usuario_id = ?
+                """;
+        return jdbcTemplate.query(sql, conquistaUsuarioMapper, usuarioId);
     }
 
     public int excluir(long id){

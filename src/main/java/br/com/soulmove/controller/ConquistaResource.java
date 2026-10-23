@@ -29,6 +29,11 @@ public class ConquistaResource {
         return ResponseEntity.ok(conquistaDtos);
     }
 
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<?> buscarConquistas(@PathVariable long usuarioId){
+        List<ConquistaResponseDto> conquistaDtos = ConquistaDtoMapper.toResponse(service.buscarConquistas(usuarioId));
+        return ResponseEntity.ok(conquistaDtos);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<?> buscar(@PathVariable long id){
 
