@@ -15,7 +15,7 @@ public class UsuarioDtoMapper {
                 usuario.getEmail(),
                 usuario.getDataCadastro(),
                 titulo,
-                usuario.getCarteira().getId(),
+                usuario.getCarteira().getSaldo(),
                 usuario.getPontos(),
                 usuario.getMissoesConcluidas(),
                 usuario.getConquistasConcluidas()
