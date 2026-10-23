@@ -23,14 +23,14 @@ public class UsuarioResource {
     @PostMapping()
     public ResponseEntity<?> cadastrar(@RequestBody UsuarioRequestDto dto){
         UsuarioSoulMove usuario = service.cadastrar(dto.nome(), dto.email(), dto.senha());
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioDtoMapper.toResponse(usuario));
 
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UsuarioRequestDto dto){
         UsuarioSoulMove usuario = service.logar(dto.email(), dto.senha());
-        return ResponseEntity.ok(usuario);
+        return ResponseEntity.ok(UsuarioDtoMapper.toResponse(usuario));
     }
 
     @PutMapping("/titulo")
