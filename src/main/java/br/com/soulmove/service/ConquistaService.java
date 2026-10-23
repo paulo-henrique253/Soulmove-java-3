@@ -82,7 +82,7 @@ public class ConquistaService {
     }
 
     @Transactional
-    public void editar(long id, int pontos, String nome, String titulo, String descricao){
+    public void editar(long id, int pontos, String nome, String titulo, String descricao, double meta, String nomeTipo){
         if (pontos <=0)
             throw new BussinesRuleException("O atributo pontos deve ser maior que 0.");
 
@@ -94,7 +94,7 @@ public class ConquistaService {
 
         if (descricao.isEmpty())
             throw new BussinesRuleException("A descrição não pode ser vazia.");
-        int retorno = repository.editar(id, pontos, nome, titulo, descricao);
+        int retorno = repository.editar(id, pontos, nome, titulo, descricao, meta, nomeTipo);
         if (retorno == 0) throw new UnableToFindEntityException("Conquista não encontrada. Id: " + id);
     }
 

@@ -130,9 +130,9 @@ public class ConquistaRepository {
         return jdbcTemplate.update(sql, id);
     }
 
-    public int editar(long id, int pontos, String nome, String titulo, String descricao){
-        String sql = "UPDATE tb_conquista SET pontos = ?, nome = ?, titulo = ?, descricao = ? WHERE conquista_id = ?";
-        return jdbcTemplate.update(sql, pontos, nome, titulo, descricao, id);
+    public int editar(long id, int pontos, String nome, String titulo, String descricao, double meta, String nomeTipo){
+        String sql = "UPDATE tb_conquista SET pontos = ?, nome = ?, titulo = ?, descricao = ?, meta = ?, tipo_conquista_id = (SELECT tipo_conquista_id FROM tb_tipo_conquista WHERE nome = ?) WHERE conquista_id = ?";
+        return jdbcTemplate.update(sql, pontos, nome, titulo, descricao, meta, nomeTipo, id);
     }
 
     public List<Conquista> buscarConcluidas(long usuarioId){
@@ -168,9 +168,7 @@ public class ConquistaRepository {
 
     public void excluirDependencias(long conquistaId){
         String sql = "DELETE FROM tb_usuario_conquista WHERE conquista_id = ?";
-        String sql2 = "UPDATE tb_usuario SET titulo_atual = null WHERE titulo_atual = ?";
 
         jdbcTemplate.update(sql, conquistaId);
-        jdbcTemplate.update(sql2, conquistaId);
     }
 }

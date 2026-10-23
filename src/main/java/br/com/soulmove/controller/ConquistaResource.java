@@ -4,6 +4,7 @@ package br.com.soulmove.controller;
 import br.com.soulmove.controller.Dto.ConquistaDtoMapper;
 import br.com.soulmove.controller.Dto.ConquistaRequestDto;
 import br.com.soulmove.controller.Dto.ConquistaResponseDto;
+import br.com.soulmove.controller.Dto.NoContentDto;
 import br.com.soulmove.model.Conquista;
 import br.com.soulmove.service.ConquistaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,15 +59,15 @@ public class ConquistaResource {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(@PathVariable long id, @RequestBody ConquistaRequestDto conquistaDto){
         Conquista conquista = ConquistaDtoMapper.toEntity(conquistaDto);
-        service.editar(id, conquistaDto.pontos(), conquista.getNome(), conquista.getTitulo(), conquistaDto.descricao());
+        service.editar(id, conquistaDto.pontos(), conquista.getNome(), conquista.getTitulo(), conquistaDto.descricao(), conquistaDto.meta(), conquistaDto.nomeTipo());
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new NoContentDto(HttpStatus.NO_CONTENT.value(), "editado com sucesso"));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> excluir(@PathVariable long id){
         service.excluir(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new NoContentDto(HttpStatus.NO_CONTENT.value(), "excluido com sucesso"));
     }
 
 
