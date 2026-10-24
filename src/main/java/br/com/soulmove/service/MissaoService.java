@@ -43,8 +43,12 @@ public class MissaoService {
         return repository.buscar(id);
     }
 
+    public Missao buscar(long id,long usuarioId){
+        return repository.buscar(id, usuarioId);
+    }
+
     @Transactional
-    public void editar(long id, int pontos, String titulo, String descricao, String nomeTipo){
+    public void editar(long id, int pontos, String titulo, String descricao, String nomeTipo, double meta, int periodicidade,  int prazo, MultipartFile arquivoImagem){
         TipoMissao tipo = tipoRepository.buscar(nomeTipo);
 
         if (pontos <=0)
@@ -56,12 +60,23 @@ public class MissaoService {
         if (titulo.isEmpty())
             throw new BussinesRuleException("A descrição não pode ser vazia.");
 
-        int retorno = repository.editar(id, pontos, titulo, descricao, tipo);
+        int retorno = repository.editar(id, pontos, titulo, descricao, nomeTipo, meta, periodicidade, prazo);
 
         if (retorno == 0)
             throw new UnableToFindEntityException("Missao não encontrada. Id: " + id);
 
+        byte[] dadosImagem;
+        try {
+            dadosImagem = arquivoImagem.getBytes();
+        } catch (IOException e) {
+            throw new InvalidDataException(e.getMessage());
+        }
 
+        String tipoMime = arquivoImagem.getContentType();
+
+        repository.editarImagem(dadosImagem, tipoMime, id);
+
+        repository.editar(id, pontos, titulo, descricao, nomeTipo, meta, periodicidade, prazo);
     }
 
 

@@ -101,14 +101,29 @@ public class MissaoRepository {
 
     }
 
+    public Missao buscar(long id, long usuarioId) {
+        String sql = """
+                SELECT
+                    m.missao_id, m.pontos_missao, m.titulo, m.descricao,
+                    m.meta_missao, m.periodicidade_dias, m.prazo_dias, m.imagem_missao_id,
+                    t.tipo_missao_id, t.nome AS tipo_nome, t.descricao AS tipo_descricao, t.unidade_medida AS tipo_unidade_medida
+                FROM tb_missao m
+                INNER JOIN tb_tipo_missao t ON m.tipo_missao_id = t.tipo_missao_id
+                WHERE m.missao_id = ?
+                """;
+        return jdbcTemplate.queryForObject(sql, missaoMapper, id, usuarioId);
+
+    }
+
     public int excluir(long id){
         String sql = "DELETE FROM tb_missao WHERE missao_id = ?";
         return jdbcTemplate.update(sql, id);
     }
 
-    public int editar(long id, int pontos, String titulo, String descricao, TipoMissao  tipo) {
-        String sql = "UPDATE tb_missao SET pontos_missao = ?, titulo = ?, descricao = ?, tipo_missao = ? WHERE missao_id = ?";
-        return jdbcTemplate.update(sql, pontos, titulo, descricao, tipo.getId(), id);
+    public int editar(long id, int pontos, String titulo, String descricao, String nomeTipo, double meta,  int prazo, int periodicidade) {
+        String sql = "UPDATE tb_missao SET pontos_missao = ?, titulo = ?, descricao = ?, tipo_missao_id = (SELECT tipo_missao_id FROM tb_tipo_missao WHERE nome = ?), meta_missao = ?, prazo_dias = ?, periodicidade_dias = ? WHERE missao_id = ?";
+
+        return jdbcTemplate.update(sql, pontos, titulo, descricao, nomeTipo, meta, prazo, periodicidade, id);
     }
 
 
@@ -177,5 +192,12 @@ public class MissaoRepository {
                 """;
         List<Missao> missoes = jdbcTemplate.query(sql, missaoMapper, usuarioId);
         return missoes;
+    }
+
+    public void editarImagem(byte[] dadosImagem, String tipoMime, long id) {
+
+
+
+
     }
 }

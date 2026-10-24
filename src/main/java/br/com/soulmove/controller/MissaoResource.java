@@ -6,6 +6,7 @@ import br.com.soulmove.controller.Dto.MissaoResponseDto;
 import br.com.soulmove.controller.Dto.MissaoDtoMapper;
 import br.com.soulmove.exceptions.BussinesRuleException;
 import br.com.soulmove.model.Missao;
+import br.com.soulmove.model.TipoMissao;
 import br.com.soulmove.service.MissaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -36,6 +37,12 @@ public class MissaoResource {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscar(@PathVariable long id){
         MissaoResponseDto missaoDto = MissaoDtoMapper.toResponse(service.buscar(id));
+        return ResponseEntity.ok(missaoDto);
+    }
+
+    @GetMapping("/{id}/usuario/{usuarioId}")
+    public ResponseEntity<?> buscar(@PathVariable long id, @PathVariable long usuarioId){
+        MissaoResponseDto missaoDto = MissaoDtoMapper.toResponse(service.buscar(id, usuarioId));
         return ResponseEntity.ok(missaoDto);
     }
 
@@ -83,10 +90,17 @@ public class MissaoResource {
         return ResponseEntity.status(201).body(MissaoDtoMapper.toResponse(novaMissao));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@PathVariable long id, @RequestBody MissaoRequestDto missaoDto){
-        Missao missao = MissaoDtoMapper.toEntity(missaoDto);
-        service.editar(id, missaoDto.pontos(), missao.getTitulo(), missaoDto.descricao(), missao.getTipo().getNome());
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> editar(@PathVariable long id,
+                                    @RequestParam("titulo") String titulo,
+                                    @RequestParam("nomeTipo") String nomeTipo,
+                                    @RequestParam("descricao") String descricao,
+                                    @RequestParam("pontos") int pontos,
+                                    @RequestParam("meta") double meta,
+                                    @RequestParam("periodicidade") int periodicidade,
+                                    @RequestParam("prazo") int prazo,
+                                    @RequestParam("arquivoImagem") MultipartFile arquivoImagem){
+        service.editar(id, pontos, titulo, descricao, nomeTipo, meta, periodicidade, prazo, arquivoImagem);
 
         return ResponseEntity.noContent().build();
     }
