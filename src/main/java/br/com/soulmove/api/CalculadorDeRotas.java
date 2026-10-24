@@ -27,14 +27,14 @@ public class CalculadorDeRotas {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 // IMPORTANTE: Definir o User-Agent exigido pelo Nominatim
-                .header("User-Agent", "MeuAppJava/1.0 (contato@meudominio.com)")
+                .header("User-Agent", "SoulMoveJava/1.0 (paulo253hgg@gmail.com)")
                 .GET()
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         JsonNode rootNode = objectMapper.readTree(response.body());
-
+        Thread.sleep(1500);
         if (rootNode.isArray() && !rootNode.isEmpty()) {
             JsonNode primeiroResultado = rootNode.get(0);
             double lat = primeiroResultado.get("lat").asDouble();

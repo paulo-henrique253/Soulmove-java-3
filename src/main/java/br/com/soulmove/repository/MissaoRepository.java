@@ -147,8 +147,9 @@ public class MissaoRepository {
     }
 
     public int excluirDependencias(long id){
+        String sql1 = "DELETE FROM tb_comprovante WHERE usuario_missao_id IN (SELECT usuario_missao_id FROM tb_usuario_missao WHERE missao_id = ?)";
         String sql = "DELETE FROM tb_usuario_missao WHERE missao_id = ?";
-        return jdbcTemplate.update(sql, id);
+        return jdbcTemplate.update(sql, id) + jdbcTemplate.update(sql1, id);
     }
 
     public Map<String, Object> buscarImagem(long imagemId) {

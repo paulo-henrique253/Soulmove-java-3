@@ -1,7 +1,9 @@
 package br.com.soulmove.controller;
 
+import br.com.soulmove.controller.Dto.NoContentDto;
 import br.com.soulmove.controller.Dto.RecargaRequestDto;
 import br.com.soulmove.service.RecargaService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +19,7 @@ public class RecargaResource {
     @PostMapping("/pix")
     public ResponseEntity<?> recarregar(@RequestBody RecargaRequestDto dto){
         service.processarRecargaPix(dto.codigo(), dto.usuarioId());
-        return ResponseEntity.ok("recargaEfetuada");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new NoContentDto(HttpStatus.NO_CONTENT.value(), "recargaEfetuada"));
     }
 
 }
