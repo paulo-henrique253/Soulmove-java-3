@@ -1,10 +1,13 @@
 package br.com.soulmove.service;
 
 import br.com.soulmove.exceptions.BussinesRuleException;
+import br.com.soulmove.exceptions.DuplicateEntityException;
 import br.com.soulmove.exceptions.UnableToFindEntityException;
 import br.com.soulmove.model.*;
 import br.com.soulmove.repository.ConquistaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +29,16 @@ public class ConquistaService {
     }
 
     public  List<Conquista> buscarConquistas(long usuarioId){
-        List<Conquista> conquistas = repository.buscarTodas(usuarioId);
-        UsuarioHistorico historico = usuarioService.buscarHistorico(usuarioId);
-        for (Conquista c : conquistas){
-            c.setProgresso(obterProgresso(c, historico));
+        try{
+            List<Conquista> conquistas = repository.buscarTodas(usuarioId);
+            UsuarioHistorico historico = usuarioService.buscarHistorico(usuarioId);
+            for (Conquista c : conquistas){
+                c.setProgresso(obterProgresso(c, historico));
+            }
+            return conquistas;
+        }catch (EmptyResultDataAccessException e){
+            throw new UnableToFindEntityException("Usuário não encontrado");
         }
-        return conquistas;
     }
 
     public List<Conquista> buscarConcluidas(long usuarioId){
@@ -39,7 +46,12 @@ public class ConquistaService {
     }
 
     public Conquista buscar(long id){
-        return repository.buscar(id);
+        try {
+            return repository.buscar(id);
+        }catch (EmptyResultDataAccessException e){
+            throw new UnableToFindEntityException("Conquista não encontrada");
+        }
+
     }
 
 
@@ -54,12 +66,24 @@ public class ConquistaService {
         if (titulo.isEmpty())
             throw new BussinesRuleException("O titulo não pode ser vazio.");
 
+        long id;
+
         if (descricao.isEmpty())
             throw new BussinesRuleException("A descrição não pode ser vazia.");
+        try {
+            id = repository.cadastrar(pontos, nome, titulo, descricao, meta, nomeTipo);
+        }catch (DataIntegrityViolationException e){
+            Throwable rootCause = e.getMostSpecificCause();
+            String message = rootCause.getMessage().toUpperCase();
+            if (message != null){
+                if (message.contains("TIPO_CONQUISTA"))
+                    throw new UnableToFindEntityException("Nome do Tipo Conquista inválido");
+                if (message.contains("NOME"))
+                    throw new DuplicateEntityException("Conquista com esse nome ja cadastrada");
+            }
+            throw e;
+        }
 
-
-
-        long id = repository.cadastrar(pontos, nome, titulo, descricao, meta, nomeTipo);
         Conquista c = new Conquista();
         c.setId(id);
         c.setPontos(pontos);
@@ -94,28 +118,50 @@ public class ConquistaService {
 
         if (descricao.isEmpty())
             throw new BussinesRuleException("A descrição não pode ser vazia.");
-        int retorno = repository.editar(id, pontos, nome, titulo, descricao, meta, nomeTipo);
-        if (retorno == 0) throw new UnableToFindEntityException("Conquista não encontrada. Id: " + id);
+
+        try {
+            int retorno = repository.editar(id, pontos, nome, titulo, descricao, meta, nomeTipo);
+            if (retorno == 0) throw new UnableToFindEntityException("Conquista não encontrada. Id: " + id);
+        } catch (DataIntegrityViolationException e){
+            Throwable rootCause = e.getMostSpecificCause();
+            String message = rootCause.getMessage().toUpperCase();
+            if (message != null){
+                if (message.contains("TIPO_CONQUISTA"))
+                    throw new UnableToFindEntityException("Nome do Tipo Conquista inválido");
+                if (message.contains("NOME"))
+                    throw new DuplicateEntityException("Conquista com esse nome ja cadastrada");
+            }
+            throw e;
+        }
+
     }
 
 
     @Transactional
     public void completarConquista(long usuarioId, long conquistaId){
-        repository.completar(usuarioId, conquistaId);
+        int registros = repository.completar(usuarioId, conquistaId);
+        if (registros == 0)
+            throw new UnableToFindEntityException("Conquista ou usuario inválido");
+
     }
 
     public int verificarConcluidas(long usuarioId){
 
-        List<Conquista> pendentes = repository.buscarPendentes(usuarioId);
+        try {
+            List<Conquista> pendentes = repository.buscarPendentes(usuarioId);
 
-        UsuarioHistorico historico = usuarioService.buscarHistorico(usuarioId);
-        pendentes.removeIf(conquista -> !isConcluida(conquista, historico));
+            UsuarioHistorico historico = usuarioService.buscarHistorico(usuarioId);
+            pendentes.removeIf(conquista -> !isConcluida(conquista, historico));
 
 
-        for (Conquista c : pendentes) {
-            completarConquista(usuarioId, c.getId());
+            for (Conquista c : pendentes) {
+                completarConquista(usuarioId, c.getId());
+            }
+            return pendentes.size();
+        }catch (EmptyResultDataAccessException e){
+            //erro do histórico
+            throw new UnableToFindEntityException("Usuário não encontrado");
         }
-        return pendentes.size();
     }
 
     private boolean isConcluida(Conquista conquista, UsuarioHistorico historico) {

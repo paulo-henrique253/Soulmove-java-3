@@ -160,10 +160,10 @@ public class ConquistaRepository {
     }
 
 
-    public void completar(long usuarioId, long conquistaId){
+    public int completar(long usuarioId, long conquistaId){
 
         String sql = "INSERT INTO tb_usuario_conquista (usuario_id, conquista_id, pontuacao_recebida, flag_titulo_atual) VALUES (?, ?, (SELECT pontos FROM tb_conquista WHERE conquista_id = ?), 'N')";
-        jdbcTemplate.update(sql, usuarioId, conquistaId, conquistaId);
+        return jdbcTemplate.update(sql, usuarioId, conquistaId, conquistaId);
     }
 
     public void excluirDependencias(long conquistaId){
