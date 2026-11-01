@@ -140,10 +140,10 @@ public class MissaoRepository {
         return jdbcTemplate.query(sql, missaoMapper, usuarioId);
     }
 
-    public void completar(long usuarioId, long missaoId){
+    public int completar(long usuarioId, long missaoId){
         String sql = "UPDATE tb_usuario_missao SET status_missao = ?, pontuacao_recebida = (SELECT pontos_missao FROM tb_missao WHERE missao_id = ?), data_conclusao = SYSDATE WHERE missao_id = ? AND usuario_id = ?";
 
-        jdbcTemplate.update(sql, StatusMissao.CONCLUIDA.getStatus(), missaoId, missaoId, usuarioId);
+        return jdbcTemplate.update(sql, StatusMissao.CONCLUIDA.getStatus(), missaoId, missaoId, usuarioId);
     }
 
     public int excluirDependencias(long id){
