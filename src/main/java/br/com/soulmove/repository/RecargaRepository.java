@@ -16,16 +16,12 @@ public class RecargaRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private RowMapper<Recarga> recargaMapper = (rs, rowNum) ->{
-        return new Recarga();
-    };
-
     @Autowired
     public RecargaRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Recarga cadastrar(long usuarioId, String codigoPix, BigDecimal valorRecarga) {
+    public void cadastrar(long usuarioId, String codigoPix, BigDecimal valorRecarga) {
         String sql = "INSERT INTO tb_recarga (usuario_id, codigo_pix_copia_cola, valor_recarga, status_recarga) VALUES(?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -37,8 +33,6 @@ public class RecargaRepository {
             ps.setString(4, "pendente");
             return ps;
         }, keyHolder);
-
-        return new Recarga();
     }
 
 }
