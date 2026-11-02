@@ -45,9 +45,9 @@ public class CarteiraRepository {
         return jdbcTemplate.queryForObject(sql, carteiraMapper, usuarioId);
     }
 
-    public void alterarSaldo(CarteiraUsuario carteira, double saldo){
+    public int alterarSaldo(CarteiraUsuario carteira, double saldo){
         String sql = "UPDATE tb_carteira SET saldo_mobilidade = ? WHERE carteira_id = ?";
-        jdbcTemplate.update(sql, OracleErrorParser.adjustPrecision(saldo, 2), carteira.getId());
+        return jdbcTemplate.update(sql, OracleErrorParser.adjustPrecision(saldo, 2), carteira.getId());
     }
 
     public CarteiraUsuario buscarCarteira(long id) {

@@ -1,6 +1,7 @@
 package br.com.soulmove.service;
 
 import br.com.soulmove.exceptions.BussinesRuleException;
+import br.com.soulmove.exceptions.DuplicateEntityException;
 import br.com.soulmove.exceptions.InvalidDataException;
 import br.com.soulmove.exceptions.UnableToFindEntityException;
 import br.com.soulmove.model.Missao;
@@ -10,6 +11,8 @@ import br.com.soulmove.model.UsuarioSoulMove;
 import br.com.soulmove.repository.MissaoRepository;
 import br.com.soulmove.repository.TipoMissaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,11 +43,19 @@ public class MissaoService {
     }
 
     public Missao buscar(long id){
-        return repository.buscar(id);
+        try{
+            return repository.buscar(id);
+        }catch (EmptyResultDataAccessException e){
+            throw new UnableToFindEntityException("Missão não encontrada");
+        }
     }
 
     public Missao buscar(long id,long usuarioId){
-        return repository.buscar(id, usuarioId);
+        try {
+            return repository.buscar(id, usuarioId);
+        }catch (EmptyResultDataAccessException e) {
+            throw new UnableToFindEntityException("Missão ou usuário inválidos");
+        }
     }
 
     @Transactional
@@ -60,11 +71,6 @@ public class MissaoService {
         if (titulo.isEmpty())
             throw new BussinesRuleException("A descrição não pode ser vazia.");
 
-        int retorno = repository.editar(id, pontos, titulo, descricao, nomeTipo, meta, periodicidade, prazo);
-
-        if (retorno == 0)
-            throw new UnableToFindEntityException("Missao não encontrada. Id: " + id);
-
         byte[] dadosImagem;
         try {
             dadosImagem = arquivoImagem.getBytes();
@@ -74,9 +80,26 @@ public class MissaoService {
 
         String tipoMime = arquivoImagem.getContentType();
 
-        repository.editarImagem(dadosImagem, tipoMime, id);
+        try{
+            repository.editarImagem(dadosImagem, tipoMime, id);
 
-        repository.editar(id, pontos, titulo, descricao, nomeTipo, meta, periodicidade, prazo);
+            int registros = repository.editar(id, pontos, titulo, descricao, nomeTipo, meta, periodicidade, prazo);
+            if (registros == 0)
+                throw new UnableToFindEntityException("Missao não encontrada. Id: " + id);
+        }catch (DataIntegrityViolationException e){
+            Throwable rootCause = e.getMostSpecificCause();
+            String message = rootCause.getMessage().toUpperCase();
+            if (message != null){
+                if (message.contains("TIPO_MISSAO"))
+                    throw new UnableToFindEntityException("Nome do tipo missão inválido");
+                if (message.contains("TITULO"))
+                    throw new DuplicateEntityException("Missão com esse nome já cadastrada");
+                if (message.contains("PERIODICIDADE"))
+                    throw new BussinesRuleException("A periodicidade deve ser 1, 7, 30 ou nulo");
+                if (message.contains("PRAZO"))
+                    throw new BussinesRuleException("O prazo deve ser maior que 0");
+            }
+        }
     }
 
 
@@ -100,16 +123,33 @@ public class MissaoService {
         }
 
         String tipoMime = arquivoImagem.getContentType();
+        try {
+            long imagemId = repository.cadastrarImagem(dadosImagem, tipoMime);
 
-        long imagemId = repository.cadastrarImagem(dadosImagem, tipoMime);
+            long id =  repository.cadastrar(pontos, nome, tipo, descricao, meta, periodicidade, prazo, imagemId);
+            Missao m = new Missao(id, nome, tipo, descricao, pontos);
+            m.setMeta(meta);
+            m.setPeriodicidade(periodicidade);
+            m.setPrazo(prazo);
+            m.setImagemId(imagemId);
+            return m;
+        }catch (DataIntegrityViolationException e){
+            Throwable rootCause = e.getMostSpecificCause();
+            String message = rootCause.getMessage().toUpperCase();
 
-        long id =  repository.cadastrar(pontos, nome, tipo, descricao, meta, periodicidade, prazo, imagemId);
-        Missao m = new Missao(id, nome, tipo, descricao, pontos);
-        m.setMeta(meta);
-        m.setPeriodicidade(periodicidade);
-        m.setPrazo(prazo);
-        m.setImagemId(imagemId);
-        return m;
+            if (message != null){
+                if (message.contains("TIPO_MISSAO"))
+                    throw new UnableToFindEntityException("Nome do tipo missão inválido");
+                if (message.contains("TITULO"))
+                    throw new DuplicateEntityException("Missão com esse nome já cadastrada");
+                if (message.contains("PERIODICIDADE"))
+                    throw new BussinesRuleException("A periodicidade deve ser 1, 7, 30 ou nulo");
+                if (message.contains("PRAZO"))
+                    throw new BussinesRuleException("O prazo deve ser maior que 0");
+            }
+
+            throw e;
+        }
 
     }
 
@@ -120,27 +160,40 @@ public class MissaoService {
     }
 
     public Map<String, Object> buscarImagem(long imagemId) {
-        return repository.buscarImagem(imagemId);
+        try{
+            return repository.buscarImagem(imagemId);
+        }catch (EmptyResultDataAccessException e){
+            throw new UnableToFindEntityException("Imagem não encontrada");
+        }
     }
 
     @Transactional
     public void completarMissao(long usuarioId, long missaoId){
-        repository.completar(usuarioId, missaoId);
+
+        int registros = repository.completar(usuarioId, missaoId);
+        if (registros == 0){
+            throw new UnableToFindEntityException("Usuario ou missão inválidos");
+        }
         verificarConcluidas(usuarioId);
+
     }
 
     public int verificarConcluidas(long usuarioId){
 
-        List<Missao> pendentes = repository.buscarPendentes(usuarioId);
+        try{
+            List<Missao> pendentes = repository.buscarPendentes(usuarioId);
 
-        UsuarioHistorico historico = usuarioService.buscarHistorico(usuarioId);
-        pendentes.removeIf(missao -> !isConcluida(missao, historico));
+            UsuarioHistorico historico = usuarioService.buscarHistorico(usuarioId);
+            pendentes.removeIf(missao -> !isConcluida(missao, historico));
 
 
-        for (Missao m : pendentes) {
-            completarMissao(usuarioId, m.getId());
+            for (Missao m : pendentes) {
+                completarMissao(usuarioId, m.getId());
+            }
+            return pendentes.size();
+        }catch (EmptyResultDataAccessException e){
+            throw new UnableToFindEntityException("Usuário não encontrado");
         }
-        return pendentes.size();
     }
 
     private boolean isConcluida(Missao missao, UsuarioHistorico historico) {
