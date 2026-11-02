@@ -119,6 +119,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
+    public ResponseEntity<ErrorResponse> handlerDuplicateEntity(
+            DuplicateEntityException ex,
+            HttpServletRequest request
+    ){
+        HttpStatus status = HttpStatus.CONFLICT; // 409
+
+        ErrorResponse error = new ErrorResponse(
+                Instant.now(),
+                status.value(),
+                "Campo unico duplicado",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
+
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public ResponseEntity<ErrorResponse> hadleEmptyResult(
             EmptyResultDataAccessException ex,
@@ -198,7 +215,7 @@ public class GlobalExceptionHandler {
                 Instant.now(),
                 status.value(),
                 "Erro interno do servidor",
-                ex.getMessage(),
+                "Contate o suporte",
                 request.getRequestURI()
         );
 
