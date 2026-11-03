@@ -101,7 +101,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
-
+    @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<ErrorResponse> handlerDuplicateKey(
             DuplicateKeyException ex,
             HttpServletRequest request
@@ -119,6 +119,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
+    @ExceptionHandler(DuplicateEntityException.class)
     public ResponseEntity<ErrorResponse> handlerDuplicateEntity(
             DuplicateEntityException ex,
             HttpServletRequest request
@@ -215,7 +216,7 @@ public class GlobalExceptionHandler {
                 Instant.now(),
                 status.value(),
                 "Erro interno do servidor",
-                ex.getMessage(),
+                "Erro inesperado. Contate o suporte",
                 request.getRequestURI()
         );
 
