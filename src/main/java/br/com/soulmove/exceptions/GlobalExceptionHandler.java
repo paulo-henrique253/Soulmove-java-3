@@ -215,7 +215,7 @@ public class GlobalExceptionHandler {
                 Instant.now(),
                 status.value(),
                 "Erro interno do servidor",
-                "Contate o suporte",
+                ex.getMessage(),
                 request.getRequestURI()
         );
 
